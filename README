@@ -1,0 +1,14 @@
+Sets up a new nebula gradle plugin.
+
+lazybones create nebula-plugin 0.1.0-SNAPSHOT
+
+lazybones create nebula-plugin 0.1.0-SNAPSHOT -Pdescription='plugin description' -Ppluginname='gradle-plugin' -Ppackage='nebula.plugin.package' -Ppluginclass='PluginName'
+
+params.description = ask('Enter your plugin\'s description: ', '', 'description')
+def pluginName = ask('Enter the plugin name: ', '', 'pluginname')
+def packageName = ask('Enter the package name you want: ', '', 'package')
+def pluginClass = ask('Enter the class name of the plugin: ', '', 'pluginclass')
+params.devName = ask('Name to add to developers block: ', '', 'name')
+params.githubId = ask('Github id: ')
+params.email = ask('Email address: ')
+params.timezone = ask('Timezone, e.g -8 for PST: ', '0', 'timezone')
