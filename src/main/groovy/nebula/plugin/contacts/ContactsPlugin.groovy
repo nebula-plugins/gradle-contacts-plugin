@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nebula.plugin.owners
+package nebula.plugin.contacts
 
+import nebula.plugin.publishing.NebulaPublishingPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-class OwnerPlugin implements Plugin<Project> {
+/**
+ * Apply all the relevant contact plugins.
+ * TBD How do plugins define which "role" they use?
+ */
+class ContactsPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
+        NebulaPublishingPlugin plugin
+
+        // TODO Inherit from root project or be able to apply to the root project
     }
 }

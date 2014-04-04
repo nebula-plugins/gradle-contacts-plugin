@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nebula.plugin.owners
+package nebula.plugin.contacts
 
 import nebula.test.ProjectSpec
 
-class OwnerPluginSpec extends ProjectSpec {
+class ContactsPluginSpec extends ProjectSpec {
     @Override
     void getPluginName() {
-        'owners'
+        'contacts'
     }
+
+
 }
