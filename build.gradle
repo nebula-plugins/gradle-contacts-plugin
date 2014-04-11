@@ -15,14 +15,16 @@
  */
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.9' }
+    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.10' }
 }
 
 description 'Plugin to specify and publish who the owner of a project is'
 apply plugin: 'nebula-plugin'
 
 dependencies {
-    compile 'com.netflix.nebula:nebula-publishing-plugin:1.9.6'
+    // TBD Should they depend on us? We didn't do that for the info plugin
+    compile 'com.netflix.nebula:nebula-publishing-plugin:1.9.6' // Should be optional
+    compile 'com.netflix.nebula:gradle-info-plugin:1.9.3' // Should be optional
 }
 
 def pomConfig = {

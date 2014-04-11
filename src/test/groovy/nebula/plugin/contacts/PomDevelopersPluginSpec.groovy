@@ -17,11 +17,9 @@ package nebula.plugin.contacts
 
 import nebula.test.PluginProjectSpec
 
-class ContactsPluginSpec extends PluginProjectSpec {
+class PomDevelopersPluginSpec extends PluginProjectSpec {
     @Override
     String getPluginName() {
-        'contacts'
+        'contacts-pom'
     }
-
-
 }

@@ -15,41 +15,56 @@
  */
 package nebula.plugin.contacts
 
-import nebula.plugin.publishing.NebulaPublishingPlugin
 import nebula.plugin.publishing.maven.NebulaBaseMavenPublishingPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * Take the contacts and apply them to the POM file
+ * Take the contacts and apply them to the POM file. Probably should be in the publishing plugin.
  */
 class PomDevelopersPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        NebulaPublishingPlugin plugin
-        def pomConfig = {
-            inceptionYear '2014'
+        // React to BaseContactsPlugin
+        project.plugins.withType(BaseContactsPlugin) { BaseContactsPlugin contactsPlugin ->
+            // React to Publishing Plugin
+            project.plugins.withType(NebulaBaseMavenPublishingPlugin) { NebulaBaseMavenPublishingPlugin basePlugin ->
+                basePlugin.withMavenPublication {
+                    // This should be late enough to look at the contacts
+                    pom.withXml {
+                        def pomConfig = {
+                            developers {
+                                contactsPlugin.getAllContacts().each { Contact contact ->
+                                    // Can't put this in a function or else the closure's delegate won't be used correctly
+                                    developer {
+                                        if (contact.github) {
+                                            id contact.github
+                                        } else if(contact.twitter) {
+                                            id contact.twitter
+                                        }
 
-            developers {
-                developer {
-                    id 'quidryan'
-                    name 'Justin Ryan'
-                    email 'jryan@netflix.com'
-                    roles{
-                        role 'Developer'
+                                        if (contact.moniker) {
+                                            name contact.moniker
+                                        }
+
+                                        email contact.email
+
+                                        if (contact.roles) {
+                                            roles {
+                                                contact.roles.each { String roleString ->
+                                                    role roleString
+                                                }
+                                            }
+                                        }
+                                        //timezone '-8'
+                                    }
+                                }
+                            }
+                        }
+                        asNode().children().last() + pomConfig
                     }
-                    timezone '-8'
                 }
             }
         }
-
-        project.plugins.withType(NebulaBaseMavenPublishingPlugin) {
-            withMavenPublication {
-                pom.withXml {
-                    asNode().children().last() + pomConfig
-                }
-            }
-        }
-        // TODO Inherit from root project or be able to apply to the root project
     }
 }

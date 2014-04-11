@@ -15,7 +15,6 @@
  */
 package nebula.plugin.contacts
 
-import nebula.plugin.publishing.NebulaPublishingPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -26,8 +25,8 @@ import org.gradle.api.Project
 class ContactsPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        NebulaPublishingPlugin plugin
-
-        // TODO Inherit from root project or be able to apply to the root project
+        project.plugins.apply(BaseContactsPlugin)
+        project.plugins.apply(ManifestOwnersPlugin)
+        project.plugins.apply(PomDevelopersPlugin)
     }
 }

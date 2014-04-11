@@ -15,32 +15,52 @@
  */
 package nebula.plugin.contacts
 
+import nebula.plugin.info.InfoPlugin
+import nebula.plugin.publishing.maven.NebulaMavenPublishingPlugin
 import nebula.test.IntegrationSpec
+import org.gradle.BuildResult
 
+/**
+ * The contacts plugin is the uber plugin, so we're testing all the plugins together here.
+ */
 class ContactsPluginLauncherSpec extends IntegrationSpec {
 
     def pomLocation = 'build/publications/mavenJava/pom-default.xml'
+    def propsLocation = 'build/manifest/info.properties'
 
     def 'look in pom'() {
 
         buildFile << """
-            buildscript {
-                repositories { jcenter() }
-                dependencies { classpath 'com.netflix.nebula:nebula-publishing-plugin:1.9.6' }
-            }
             ${applyPlugin(ContactsPlugin)}
+            ${applyPlugin(NebulaMavenPublishingPlugin)}
+            ${applyPlugin(InfoPlugin)}
 
             apply plugin: 'nebula-publishing'
+            apply plugin: 'contacts'
             contacts {
-                owner {
-                    email 'mickey@disney.com'
-                    name 'Mickey Mouse'
+                'benny@company.com' { } // when in a contacts block everyone needs brackets
+                'bobby@company.com' {
+                    github 'bob1978'
+                    roles 'notify', 'owner'
+                }
+                'billy@company.com' {
+                    moniker 'Billy Bob'
+                    role 'techwriter'
+                }
+                'downstream@netflix.com' {
+                    role 'notify'
                 }
             }
+            contacts 'jane@company.com'
+            contacts 'jack@company.com', 'john@company.com'
             """.stripIndent()
 
         when:
-        runTasksSuccessfully('generatePomFileForMavenJavaPublication')
+        BuildResult result = runTasksSuccessfully('generatePomFileForMavenJavaPublication', 'writeManifestProperties')
+
+        then: 'model has developers'
+        BaseContactsPlugin contactsPlugin = result.gradle.rootProject.plugins.getPlugin(BaseContactsPlugin)
+        contactsPlugin.allContacts.size() == 7
 
         then: 'pom exists'
         fileExists(pomLocation)
@@ -48,10 +68,23 @@ class ContactsPluginLauncherSpec extends IntegrationSpec {
 
         then: 'developer section is filled in'
         def devs = pom.developers.developer
-        devs.size() == 1
-        def dev = devs[0]
-        dev.email.text() == 'mickey@disney.com'
-        dev.name.text() == 'Mickey Mouse'
+        devs.size() == 7
+        devs.any { it.email.text() == 'benny@company.com' }
+        devs.any { it.email.text() == 'bobby@company.com' && it.id.text() == 'bob1978' }
+        devs.any { it.email.text() == 'billy@company.com' && it.name.text() == 'Billy Bob' }
+        devs.any { it.email.text() == 'downstream@netflix.com' }
 
+        then: 'tags are in the manifest'
+        fileExists(propsLocation)
+
+        when:
+        def props = new Properties()
+        file(propsLocation).withInputStream {
+            stream -> props.load(stream)
+        }
+
+        then: 'see key in manifest'
+        props['Module-Owner'] == 'benny@company.com,bobby@company.com,jane@company.com,jack@company.com,john@company.com'
+        props['Module-Email'] == 'benny@company.com,bobby@company.com,downstream@netflix.com,jane@company.com,jack@company.com,john@company.com'
     }
 }
