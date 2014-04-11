@@ -34,6 +34,7 @@ class PomDevelopersPlugin implements Plugin<Project> {
                     pom.withXml {
                         def pomConfig = {
                             developers {
+                                // TODO make which roles that are used configurable
                                 contactsPlugin.getAllContacts().each { Contact contact ->
                                     // Can't put this in a function or else the closure's delegate won't be used correctly
                                     developer {
