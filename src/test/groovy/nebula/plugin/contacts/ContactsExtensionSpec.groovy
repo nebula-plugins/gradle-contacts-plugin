@@ -1,6 +1,6 @@
 package nebula.plugin.contacts
 
-import org.gradle.api.NamedDomainObjectContainer
+import com.google.common.collect.Maps
 import spock.lang.Specification
 
 class ContactsExtensionSpec extends Specification {
@@ -49,5 +49,33 @@ class ContactsExtensionSpec extends Specification {
         1 * people.put('mickey@disney.com', _)
         1 * people.put('minnie@disney.com', _)
         1 * people.put('goofy@disney.com', _)
+    }
+
+    def 'merge values on consequence calls'() {
+        LinkedHashMap<String, Contact> people = Maps.newLinkedHashMap()
+        ContactsExtension extension = new ContactsExtension(people)
+
+        Closure closure = {
+            'mickey@disney.com' {
+                moniker 'Mickey'
+                github 'mmouse'
+            }
+            'mickey@disney.com' {
+                moniker 'Mickey Mouse'
+                twitter 'mmouse1928'
+            }
+        }
+
+        when:
+        closure.delegate = extension
+        closure.call()
+
+        then:
+        people.keySet().size() == 1
+        def mickey = people['mickey@disney.com']
+        mickey.email == 'mickey@disney.com'
+        mickey.moniker == 'Mickey Mouse'
+        mickey.github == 'mmouse'
+        mickey.twitter == 'mmouse1928'
     }
 }
