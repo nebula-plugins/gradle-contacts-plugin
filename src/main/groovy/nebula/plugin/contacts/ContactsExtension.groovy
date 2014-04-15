@@ -25,7 +25,6 @@ class ContactsExtension {
      * @return Contact
      */
     def methodMissing(String name, args) {
-        println "Method $name"
         switch(args.length) {
             case 0:
                 def added = addPerson(name)
