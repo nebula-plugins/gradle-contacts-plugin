@@ -56,11 +56,7 @@ class ContactsPluginLauncherSpec extends IntegrationSpec {
             """.stripIndent()
 
         when:
-        BuildResult result = runTasksSuccessfully('generatePomFileForMavenJavaPublication', 'writeManifestProperties')
-
-        then: 'model has developers'
-        BaseContactsPlugin contactsPlugin = result.gradle.rootProject.plugins.getPlugin(BaseContactsPlugin)
-        contactsPlugin.allContacts.size() == 7
+        runTasksSuccessfully('generatePomFileForMavenJavaPublication', 'writeManifestProperties')
 
         then: 'pom exists'
         fileExists(pomLocation)
