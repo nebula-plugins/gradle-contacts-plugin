@@ -33,31 +33,33 @@ class PomDevelopersPlugin implements Plugin<Project> {
                     // This should be late enough to look at the contacts
                     pom.withXml {
                         def pomConfig = {
-                            developers {
-                                // TODO make which roles that are used configurable
-                                contactsPlugin.getAllContacts().each { Contact contact ->
-                                    // Can't put this in a function or else the closure's delegate won't be used correctly
-                                    developer {
-                                        if (contact.github) {
-                                            id contact.github
-                                        } else if(contact.twitter) {
-                                            id contact.twitter
-                                        }
+                            if (contactsPlugin.getAllContacts()) {
+                                developers {
+                                    // TODO make which roles that are used configurable
+                                    contactsPlugin.getAllContacts().each { Contact contact ->
+                                        // Can't put this in a function or else the closure's delegate won't be used correctly
+                                        developer {
+                                            if (contact.github) {
+                                                id contact.github
+                                            } else if (contact.twitter) {
+                                                id contact.twitter
+                                            }
 
-                                        if (contact.moniker) {
-                                            name contact.moniker
-                                        }
+                                            if (contact.moniker) {
+                                                name contact.moniker
+                                            }
 
-                                        email contact.email
+                                            email contact.email
 
-                                        if (contact.roles) {
-                                            roles {
-                                                contact.roles.each { String roleString ->
-                                                    role roleString
+                                            if (contact.roles) {
+                                                roles {
+                                                    contact.roles.each { String roleString ->
+                                                        role roleString
+                                                    }
                                                 }
                                             }
+                                            //timezone '-8'
                                         }
-                                        //timezone '-8'
                                     }
                                 }
                             }
