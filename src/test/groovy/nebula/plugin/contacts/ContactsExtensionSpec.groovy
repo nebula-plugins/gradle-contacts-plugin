@@ -1,6 +1,5 @@
 package nebula.plugin.contacts
 
-import com.google.common.collect.Maps
 import spock.lang.Specification
 
 class ContactsExtensionSpec extends Specification {
@@ -52,7 +51,7 @@ class ContactsExtensionSpec extends Specification {
     }
 
     def 'merge values on consequence calls'() {
-        LinkedHashMap<String, Contact> people = Maps.newLinkedHashMap()
+        LinkedHashMap<String, Contact> people = new LinkedHashMap<>()
         ContactsExtension extension = new ContactsExtension(people)
 
         Closure closure = {

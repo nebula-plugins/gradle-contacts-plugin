@@ -15,7 +15,6 @@
  */
 package nebula.plugin.contacts
 
-import com.google.common.collect.Maps
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -30,7 +29,7 @@ class BaseContactsPlugin implements Plugin<Project> {
     void apply(Project project) {
         this.project = project
 
-        def people = Maps.newLinkedHashMap()
+        def people = new LinkedHashMap<String, Contact>()
 
         // Create and install the extension object
         extension = project.extensions.create('contacts', ContactsExtension, people)
