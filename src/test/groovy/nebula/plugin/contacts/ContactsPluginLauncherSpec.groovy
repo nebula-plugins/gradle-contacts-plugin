@@ -25,7 +25,7 @@ import org.gradle.BuildResult
  */
 class ContactsPluginLauncherSpec extends IntegrationSpec {
 
-    def pomLocation = 'build/publications/mavenJava/pom-default.xml'
+    def pomLocation = 'build/publications/mavenNebula/pom-default.xml'
     def propsLocation = 'build/manifest/info.properties'
 
     def 'look in pom'() {
@@ -56,7 +56,7 @@ class ContactsPluginLauncherSpec extends IntegrationSpec {
             """.stripIndent()
 
         when:
-        runTasksSuccessfully('generatePomFileForMavenJavaPublication', 'writeManifestProperties')
+        runTasksSuccessfully('generatePomFileForMavenNebulaPublication', 'writeManifestProperties')
 
         then: 'pom exists'
         fileExists(pomLocation)
