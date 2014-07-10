@@ -16,6 +16,6 @@ contacts {
 dependencies {
     // TBD Should they depend on us? We didn't do that for the info plugin
     compile 'com.netflix.nebula:nebula-publishing-plugin:1.12.+' // Should be optional
-    compile 'com.netflix.nebula:gradle-info-plugin:1.12.+' // Should be optional
+    //compile 'com.netflix.nebula:gradle-info-plugin:1.12.+' // Should be optional
     testCompile 'com.netflix.nebula:nebula-test:1.12.+'
 }
