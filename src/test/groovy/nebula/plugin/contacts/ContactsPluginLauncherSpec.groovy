@@ -15,10 +15,8 @@
  */
 package nebula.plugin.contacts
 
-import nebula.plugin.info.InfoPlugin
 import nebula.plugin.publishing.maven.NebulaMavenPublishingPlugin
 import nebula.test.IntegrationSpec
-import org.gradle.BuildResult
 
 /**
  * The contacts plugin is the uber plugin, so we're testing all the plugins together here.
@@ -26,14 +24,12 @@ import org.gradle.BuildResult
 class ContactsPluginLauncherSpec extends IntegrationSpec {
 
     def pomLocation = 'build/publications/mavenNebula/pom-default.xml'
-    def propsLocation = 'build/manifest/info.properties'
 
     def 'look in pom'() {
 
         buildFile << """
             ${applyPlugin(ContactsPlugin)}
             ${applyPlugin(NebulaMavenPublishingPlugin)}
-            ${applyPlugin(InfoPlugin)}
 
             apply plugin: 'nebula-publishing'
             apply plugin: 'contacts'
@@ -56,11 +52,11 @@ class ContactsPluginLauncherSpec extends IntegrationSpec {
             """.stripIndent()
 
         when:
-        runTasksSuccessfully('generatePomFileForMavenNebulaPublication', 'writeManifestProperties')
+        runTasksSuccessfully('generatePomFileForMavenNebulaPublication')
 
         then: 'pom exists'
         fileExists(pomLocation)
-        def pom = new XmlSlurper().parse( file(pomLocation) )
+        def pom = new XmlSlurper().parse(file(pomLocation))
 
         then: 'developer section is filled in'
         def devs = pom.developers.developer
@@ -69,18 +65,5 @@ class ContactsPluginLauncherSpec extends IntegrationSpec {
         devs.any { it.email.text() == 'bobby@company.com' && it.id.text() == 'bob1978' }
         devs.any { it.email.text() == 'billy@company.com' && it.name.text() == 'Billy Bob' }
         devs.any { it.email.text() == 'downstream@netflix.com' }
-
-        then: 'tags are in the manifest'
-        fileExists(propsLocation)
-
-        when:
-        def props = new Properties()
-        file(propsLocation).withInputStream {
-            stream -> props.load(stream)
-        }
-
-        then: 'see key in manifest'
-        props['Module-Owner'] == 'benny@company.com,bobby@company.com,jane@company.com,jack@company.com,john@company.com'
-        props['Module-Email'] == 'benny@company.com,bobby@company.com,downstream@netflix.com,jane@company.com,jack@company.com,john@company.com'
     }
 }
