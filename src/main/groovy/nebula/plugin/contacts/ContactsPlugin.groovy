@@ -26,7 +26,5 @@ class ContactsPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.plugins.apply(BaseContactsPlugin)
-        project.plugins.apply(ManifestOwnersPlugin)
-        project.plugins.apply(PomDevelopersPlugin)
     }
 }
