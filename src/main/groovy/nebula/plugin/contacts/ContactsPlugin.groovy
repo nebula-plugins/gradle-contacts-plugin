@@ -27,6 +27,5 @@ class ContactsPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(BaseContactsPlugin)
         project.plugins.apply(ManifestOwnersPlugin)
-        project.plugins.apply(PomDevelopersPlugin)
     }
 }
