@@ -14,7 +14,7 @@ contacts {
 }
 
 dependencies {
-    testCompile('com.netflix.nebula:nebula-test:2.0.+') {
+    testCompile('com.netflix.nebula:nebula-test:2.2.+') {
         exclude group: 'org.codehaus.groovy'
     }
 }
