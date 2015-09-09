@@ -20,8 +20,6 @@ import nebula.test.PluginProjectSpec
 class ContactsPluginSpec extends PluginProjectSpec {
     @Override
     String getPluginName() {
-        'contacts'
+        'nebula.contacts'
     }
-
-
 }

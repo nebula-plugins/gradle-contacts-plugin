@@ -21,7 +21,7 @@ import org.gradle.testfixtures.ProjectBuilder
 class BaseContactsPluginSpec extends PluginProjectSpec {
     @Override
     String getPluginName() {
-        'contacts'
+        'nebula.contacts'
     }
 
     def 'extension accessible'() {
