@@ -107,7 +107,7 @@ contacts that want to be notified when changes are made to this module, they hav
 (or no role). We're assuming that multiple owners are allowed, and we can just comma separate them.
 
     buildscript {
-        repositories { jcenter() } }
+        repositories { jcenter() }
         dependencies { classpath 'com.netflix.nebula:gradle-contacts-plugin:1.9.+' }
         dependencies { classpath 'com.netflix.nebula:nebula-publishing-plugin:1.9.+' }
     }
