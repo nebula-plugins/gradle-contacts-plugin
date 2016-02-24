@@ -24,12 +24,12 @@ contacts 'minnie@disney.com'
 
 Muliple people in their simple form:
 
-    apply plugin: 'contacts'
+    apply plugin: 'nebula.contacts'
     contacts 'minnie@disney.com', 'mickey@disney.com', 'club@disney.com'
 
 A little bit richer, only one user:
 
-    apply plugin: 'contacts'
+    apply plugin: 'nebula.contacts'
     contacts {
         'club@disney.com' {
             name 'Mickey Mouse Club'
@@ -38,7 +38,7 @@ A little bit richer, only one user:
 
 Mix of people and teams:
 
-    apply plugin: 'contacts'
+    apply plugin: 'nebula.contacts'
     contacts {
         'club@disney.com' {
             name 'Mickey Mouse Club'
@@ -54,7 +54,7 @@ Mix of people and teams:
 
 Using roles to differentiate:
 
-    apply plugin: 'contacts'
+    apply plugin: 'nebula.contacts'
 
     contacts {
         'club@disney.com'
@@ -111,8 +111,8 @@ contacts that want to be notified when changes are made to this module, they hav
         dependencies { classpath 'com.netflix.nebula:gradle-contacts-plugin:1.9.+' }
         dependencies { classpath 'com.netflix.nebula:nebula-publishing-plugin:1.9.+' }
     }
-    apply plugin: 'contacts-base'
-    apply plugin: 'contacts-manifest'
+    apply plugin: 'nebula.contacts-base'
+    apply plugin: 'nebula.contacts-manifest'
     apply plugin: 'info'
     contacts {
         'bobby@company.com' {
@@ -136,7 +136,7 @@ Gradle POM Contacts Plugin
 
 Plugin takes all the contacts and adds them to the developers section of the POM if using the nebula-publishing-plugin.
 
-    apply plugin: 'contacts-base'
+    apply plugin: 'nebula.contacts-base'
     apply plugin: 'contacts-pom'
     apply plugin: 'nebula-maven-publishing'
 
