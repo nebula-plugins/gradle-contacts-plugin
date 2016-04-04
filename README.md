@@ -32,7 +32,7 @@ A little bit richer, only one user:
     apply plugin: 'nebula.contacts'
     contacts {
         'club@disney.com' {
-            name 'Mickey Mouse Club'
+            moniker 'Mickey Mouse Club'
         }
     }
 
@@ -41,13 +41,13 @@ Mix of people and teams:
     apply plugin: 'nebula.contacts'
     contacts {
         'club@disney.com' {
-            name 'Mickey Mouse Club'
+            moniker 'Mickey Mouse Club'
         }
         'mickey@disney.com' {
-            name 'Mickey Mouse'
+            moniker 'Mickey Mouse'
         }
         'minnie@disney.com' {
-            name 'Minnie Mouse'
+            moniker 'Minnie Mouse'
             id 'mmouse'
         }
     }
@@ -75,8 +75,7 @@ Definition
 
 Each `person` takes a closure and adds a single person. A contact can configure the following fields:
 
-* email - Email address of owner
-* name - Full name of owner
+* moniker - Full name of owner
 * github - Github username
 * twitter - Twitter handle
 * role - See below.
