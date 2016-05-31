@@ -1,5 +1,36 @@
 {
-  "com.netflix.nebula:gradle-info-plugin": { "locked": "2.2.0", "requested": "2.2.+" },
-  "com.netflix.nebula:nebula-publishing-plugin": { "locked": "2.2.0", "requested": "2.2.+" },
-  "com.netflix.nebula:nebula-test": { "locked": "2.2.0", "requested": "2.2.+" }
+    "jacocoAgent": {
+        "org.jacoco:org.jacoco.agent": {
+            "locked": "0.7.6.201602180812"
+        }
+    },
+    "jacocoAnt": {
+        "org.jacoco:org.jacoco.ant": {
+            "locked": "0.7.6.201602180812"
+        }
+    },
+    "testCompile": {
+        "com.netflix.nebula:nebula-test": {
+            "locked": "4.2.0",
+            "requested": "4.2.0"
+        }
+    },
+    "testCompileClasspath": {
+        "com.netflix.nebula:nebula-test": {
+            "locked": "4.2.0",
+            "requested": "4.2.0"
+        }
+    },
+    "testCompileOnly": {
+        "com.netflix.nebula:nebula-test": {
+            "locked": "4.2.0",
+            "requested": "4.2.0"
+        }
+    },
+    "testRuntime": {
+        "com.netflix.nebula:nebula-test": {
+            "locked": "4.2.0",
+            "requested": "4.2.0"
+        }
+    }
 }
