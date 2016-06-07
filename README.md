@@ -49,7 +49,7 @@ Mix of people and teams:
         }
         'minnie@disney.com' {
             moniker 'Minnie Mouse'
-            id 'mmouse'
+            github 'mmouse'
         }
     }
 
