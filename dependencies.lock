@@ -1,60 +1,60 @@
 {
     "integTestCompile": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "5.0.0",
-            "requested": "5.0.0"
+            "locked": "6.0.0",
+            "requested": "6.0.0"
         }
     },
     "integTestCompileClasspath": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "5.0.0",
-            "requested": "5.0.0"
-        }
-    },
-    "integTestCompileOnly": {
-        "com.netflix.nebula:nebula-test": {
-            "locked": "5.0.0",
-            "requested": "5.0.0"
+            "locked": "6.0.0",
+            "requested": "6.0.0"
         }
     },
     "integTestRuntime": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "5.0.0",
-            "requested": "5.0.0"
+            "locked": "6.0.0",
+            "requested": "6.0.0"
+        }
+    },
+    "integTestRuntimeClasspath": {
+        "com.netflix.nebula:nebula-test": {
+            "locked": "6.0.0",
+            "requested": "6.0.0"
         }
     },
     "jacocoAgent": {
         "org.jacoco:org.jacoco.agent": {
-            "locked": "0.7.7.201606060606"
+            "locked": "0.7.8"
         }
     },
     "jacocoAnt": {
         "org.jacoco:org.jacoco.ant": {
-            "locked": "0.7.7.201606060606"
+            "locked": "0.7.8"
         }
     },
     "testCompile": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "5.0.0",
-            "requested": "5.0.0"
+            "locked": "6.0.0",
+            "requested": "6.0.0"
         }
     },
     "testCompileClasspath": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "5.0.0",
-            "requested": "5.0.0"
-        }
-    },
-    "testCompileOnly": {
-        "com.netflix.nebula:nebula-test": {
-            "locked": "5.0.0",
-            "requested": "5.0.0"
+            "locked": "6.0.0",
+            "requested": "6.0.0"
         }
     },
     "testRuntime": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "5.0.0",
-            "requested": "5.0.0"
+            "locked": "6.0.0",
+            "requested": "6.0.0"
+        }
+    },
+    "testRuntimeClasspath": {
+        "com.netflix.nebula:nebula-test": {
+            "locked": "6.0.0",
+            "requested": "6.0.0"
         }
     }
 }
