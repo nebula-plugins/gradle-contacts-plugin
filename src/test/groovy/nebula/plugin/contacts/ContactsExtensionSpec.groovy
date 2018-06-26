@@ -58,10 +58,12 @@ class ContactsExtensionSpec extends Specification {
             'mickey@disney.com' {
                 moniker 'Mickey'
                 github 'mmouse'
+                slack 'mmouse'
             }
             'mickey@disney.com' {
                 moniker 'Mickey Mouse'
                 twitter 'mmouse1928'
+                slack 'mmouse1928'
             }
         }
 
@@ -76,5 +78,6 @@ class ContactsExtensionSpec extends Specification {
         mickey.moniker == 'Mickey Mouse'
         mickey.github == 'mmouse'
         mickey.twitter == 'mmouse1928'
+        mickey.slack == 'mmouse1928'
     }
 }
