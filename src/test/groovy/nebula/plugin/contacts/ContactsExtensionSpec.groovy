@@ -77,4 +77,19 @@ class ContactsExtensionSpec extends Specification {
         mickey.github == 'mmouse'
         mickey.twitter == 'mmouse1928'
     }
+
+    def 'fails with invalid email'() {
+        LinkedHashMap<String, Contact> people = Mock()
+        ContactsExtension extension = new ContactsExtension(people)
+        def closure = {}
+
+        when:
+        extension.'not-an-email' closure
+
+        then:
+        0 * people.put('not-an-email', _ as Contact)
+
+        ContactsPluginException e = thrown(ContactsPluginException)
+        e.message == 'not-an-email is not a valid email'
+    }
 }

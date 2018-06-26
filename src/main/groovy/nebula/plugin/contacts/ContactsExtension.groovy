@@ -1,9 +1,5 @@
 package nebula.plugin.contacts
 
-import org.gradle.api.NamedDomainObjectCollection
-import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.NamedDomainObjectList
-import org.gradle.api.internal.DefaultNamedDomainObjectCollection
 import org.gradle.util.ConfigureUtil
 
 /**
@@ -11,6 +7,9 @@ import org.gradle.util.ConfigureUtil
  * TODO repeat a name and guarantee uniqueness
  */
 class ContactsExtension {
+
+    private final String emailPattern = /[_A-Za-z0-9-]+(.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(.[A-Za-z0-9]+)*(.[A-Za-z]{2,})/
+
     final LinkedHashMap<String, Contact> people
 
     ContactsExtension(LinkedHashMap<String, Contact> people) {
@@ -50,18 +49,24 @@ class ContactsExtension {
     }
 
     def addPerson(String email) {
-        // TODO Validate email address
+        validateEmail(email)
         def person = people.containsKey(email) ? people.get(email) : new Contact(email)
         people.put(email, person) // Redundant if already there, just trying to follow model below
         return person
     }
 
     def addPerson(String email, Closure closure) {
-        // TODO Validate email address
+        validateEmail(email)
         def person = people.containsKey(email) ? people.get(email).clone() : new Contact(email)
         ConfigureUtil.configure(closure, person)
         people.put(email, person)
         return person
+    }
+
+    private validateEmail(String email) {
+        if(!(email ==~  emailPattern)) {
+            throw new ContactsPluginException("$email is not a valid email")
+        }
     }
 
 }
