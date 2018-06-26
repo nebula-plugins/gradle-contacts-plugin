@@ -87,4 +87,36 @@ class BaseContactsPluginSpec extends PluginProjectSpec {
         (apply.getContacts('') as Set).size() == 1
     }
 
+    def 'collects all levels of multiproject - merges existing contacts'() {
+        def sub = ProjectBuilder.builder().withName('sub').withProjectDir(new File(projectDir, 'sub')).withParent(project).build()
+        project.subprojects.add(sub)
+
+        when:
+        project.plugins.apply(BaseContactsPlugin)
+        project.contacts {
+            'mickey@disney.com' {
+            }
+            'goofy@disney.com' {
+                role 'guest'
+            }
+        }
+        def apply = sub.plugins.apply(BaseContactsPlugin)
+        sub.contacts {
+            'mickey@disney.com' {
+                role 'guest'
+                github 'mickey'
+            }
+            'goofy@disney.com' {
+                role 'guest'
+            }
+        }
+
+        and:
+        List<Contact> contacts = apply.getAllContacts()
+
+        then:
+        contacts.size() == 2
+        (apply.getContacts('guest') as Set).size() == 2
+        contacts.find { it.github == "mickey"}
+    }
 }
