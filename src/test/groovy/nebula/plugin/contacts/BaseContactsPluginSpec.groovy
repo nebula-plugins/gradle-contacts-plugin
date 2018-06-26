@@ -97,7 +97,7 @@ class BaseContactsPluginSpec extends PluginProjectSpec {
             'mickey@disney.com' {
             }
             'goofy@disney.com' {
-                role 'guest'
+                github 'goofy'
             }
         }
         def apply = sub.plugins.apply(BaseContactsPlugin)
@@ -105,9 +105,11 @@ class BaseContactsPluginSpec extends PluginProjectSpec {
             'mickey@disney.com' {
                 role 'guest'
                 github 'mickey'
+                twitter 'mickey'
             }
             'goofy@disney.com' {
                 role 'guest'
+                twitter 'goofy'
             }
         }
 
@@ -117,6 +119,7 @@ class BaseContactsPluginSpec extends PluginProjectSpec {
         then:
         contacts.size() == 2
         (apply.getContacts('guest') as Set).size() == 2
-        contacts.find { it.github == "mickey"}
+        contacts.find { it.github == 'mickey' && it.twitter == 'mickey' && it.email == 'mickey@disney.com' }
+        contacts.find { it.github == 'goofy' && it.twitter == 'goofy' && it.email == 'goofy@disney.com' }
     }
 }
