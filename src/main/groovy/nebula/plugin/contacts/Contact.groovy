@@ -27,6 +27,11 @@ class Contact implements Named {
      */
     String twitter
 
+    /**
+     * Slack handle
+     */
+    String slack
+
     Set<String> roles = [] as Set
 
     Contact(String email) {
@@ -59,5 +64,9 @@ class Contact implements Named {
 
     void twitter(String twitter) {
         this.twitter = twitter
+    }
+
+    void slack(String slack) {
+        this.slack = slack
     }
 }
