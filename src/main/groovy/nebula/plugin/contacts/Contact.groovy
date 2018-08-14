@@ -55,14 +55,20 @@ class Contact implements Named {
 
     // Temporary until we can find a annotation to do this for us
     void moniker(String moniker) {
+        if(!moniker)
+            return
         this.moniker = moniker
     }
 
     void github(String github) {
+        if(!github)
+            return
         this.github = github
     }
 
     void twitter(String twitter) {
+        if(!twitter)
+            return
         this.twitter = twitter
     }
 

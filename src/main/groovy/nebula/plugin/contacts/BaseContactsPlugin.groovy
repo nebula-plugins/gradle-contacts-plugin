@@ -49,9 +49,8 @@ class BaseContactsPlugin implements Plugin<Project> {
         while (thisProject != null) {
             ContactsExtension contactsPath = thisProject.extensions.findByType(ContactsExtension)
             if (contactsPath) {
-                // TODO Merge values as we see them. E.g. bob exists on the root project, but has a a developer role in a subproject
                 // Ergo he exists as a developer
-                contacts += contactsPath.people.values()
+                contacts = addToContacts(contacts, contactsPath.people)
             }
             thisProject = thisProject.parent // Root Project will have a null parent
         }
@@ -81,5 +80,20 @@ class BaseContactsPlugin implements Plugin<Project> {
     List<Contact> getAllContacts() {
         // Objects are already cloned before we see it.
         return resolveContacts()
+    }
+
+    private List<Contact> addToContacts(List<Contact> contacts, Map<String, Contact> people) {
+        people.each { email, contact ->
+            Contact existingContact = contacts.find { it.email == email }
+            if(existingContact) {
+                existingContact.moniker(contact.moniker)
+                existingContact.twitter(contact.twitter)
+                existingContact.github(contact.github)
+                existingContact.roles(contact.getRoles() as String[])
+            } else {
+                contacts += contact
+            }
+        }
+        return contacts
     }
 }
