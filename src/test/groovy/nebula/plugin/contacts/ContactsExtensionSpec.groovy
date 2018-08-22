@@ -1,6 +1,7 @@
 package nebula.plugin.contacts
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class ContactsExtensionSpec extends Specification {
     def 'create dynamic via email'() {
@@ -78,18 +79,59 @@ class ContactsExtensionSpec extends Specification {
         mickey.twitter == 'mmouse1928'
     }
 
-    def 'fails with invalid email'() {
+    @Unroll
+    def 'accepts valid email - #email'() {
         LinkedHashMap<String, Contact> people = Mock()
         ContactsExtension extension = new ContactsExtension(people)
         def closure = {}
 
         when:
-        extension.'not-an-email' closure
+        extension."${email}" closure
 
         then:
-        0 * people.put('not-an-email', _ as Contact)
+        1 * people.put(email, _ as Contact)
+
+        notThrown(ContactsPluginException)
+
+        where:
+        email << [
+                'mickey@disney.com',
+                'mickey.mouse@disney.com',
+                'mickey+mouse@disney.com',
+                'mickey@my-disney.com',
+                'mickey@my.disney.com',
+                'mickey@localhost', //This is ok since we do not validate TLDs
+                'mickey@my.disney', //This is ok since we do not validate TLDs
+        ]
+    }
+
+    @Unroll
+    def 'fails with invalid email - #email'() {
+        LinkedHashMap<String, Contact> people = Mock()
+        ContactsExtension extension = new ContactsExtension(people)
+        def closure = {}
+
+        when:
+        extension."$email" closure
+
+        then:
+        0 * people.put(email, _ as Contact)
 
         ContactsPluginException e = thrown(ContactsPluginException)
-        e.message == 'not-an-email is not a valid email'
+        e.message == "$email is not a valid email"
+
+        where:
+        email << [
+                'invalid-email',
+                'mickey@127.0.0.1',
+                '@disney.com',
+                '#@%^%#$@#$@#.com',
+                'Mickey Mouse <mickey@disney.com>',
+                'email.disney.com',
+                '.mickey@disney.com',
+                'mickey..mouse@disney.com',
+                'mickey@-disney.com',
+                'mickey@disney..com',
+        ]
     }
 }
