@@ -16,7 +16,7 @@
 
 
 plugins {
-    id 'nebula.plugin-plugin' version '8.0.0'
+    id 'nebula.plugin-plugin' version '8.1.2'
 }
 
 description 'Plugin to specify and publish who the owner of a project is'
