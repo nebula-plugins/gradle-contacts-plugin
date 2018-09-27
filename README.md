@@ -70,6 +70,15 @@ Using roles to differentiate:
         }
     }
 
+Using email validation:
+
+    apply plugin: 'nebula.contacts'
+    contacts {
+        validateEmails = true
+        'club@disney.com' {
+            moniker 'Mickey Mouse Club'
+        }
+    }
 
 Definition
 ----------
