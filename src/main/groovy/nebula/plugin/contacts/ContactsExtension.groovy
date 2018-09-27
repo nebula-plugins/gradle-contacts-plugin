@@ -11,9 +11,11 @@ class ContactsExtension {
     private final String emailPattern = /[_A-Za-z0-9-]+(.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(.[A-Za-z0-9]+)*(.[A-Za-z]{2,})/
 
     final LinkedHashMap<String, Contact> people
+    boolean validateEmails
 
-    ContactsExtension(LinkedHashMap<String, Contact> people) {
+    ContactsExtension(LinkedHashMap<String, Contact> people, boolean validateEmails = false) {
         this.people = people
+        this.validateEmails = validateEmails
     }
 
     /**
@@ -49,14 +51,16 @@ class ContactsExtension {
     }
 
     def addPerson(String email) {
-        validateEmail(email)
+        if(validateEmails)
+            validateEmail(email)
         def person = people.containsKey(email) ? people.get(email) : new Contact(email)
         people.put(email, person) // Redundant if already there, just trying to follow model below
         return person
     }
 
     def addPerson(String email, Closure closure) {
-        validateEmail(email)
+        if(validateEmails)
+            validateEmail(email)
         def person = people.containsKey(email) ? people.get(email).clone() : new Contact(email)
         ConfigureUtil.configure(closure, person)
         people.put(email, person)

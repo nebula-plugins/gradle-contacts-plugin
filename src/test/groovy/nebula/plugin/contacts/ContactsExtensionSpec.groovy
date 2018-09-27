@@ -6,7 +6,7 @@ import spock.lang.Unroll
 class ContactsExtensionSpec extends Specification {
     def 'create dynamic via email'() {
         LinkedHashMap<String, Contact> people = Mock()
-        ContactsExtension extension = new ContactsExtension(people)
+        ContactsExtension extension = new ContactsExtension(people, true)
         def closure = {}
 
         when:
@@ -24,7 +24,7 @@ class ContactsExtensionSpec extends Specification {
 
     def 'configure from closure'() {
         LinkedHashMap<String,Contact> people = Mock()
-        ContactsExtension extension = new ContactsExtension(people)
+        ContactsExtension extension = new ContactsExtension(people, true)
         Closure closure = {
             'mickey@disney.com' {}
         }
@@ -40,7 +40,7 @@ class ContactsExtensionSpec extends Specification {
 
     def 'create multiple people'() {
         LinkedHashMap<String,Contact> people = Mock()
-        ContactsExtension extension = new ContactsExtension(people)
+        ContactsExtension extension = new ContactsExtension(people, true)
 
         when:
         extension.'mickey@disney.com' 'minnie@disney.com', 'goofy@disney.com' // Odd calling syntax, but in a closure it'll be cleaner
@@ -53,7 +53,7 @@ class ContactsExtensionSpec extends Specification {
 
     def 'merge values on consequence calls'() {
         LinkedHashMap<String, Contact> people = new LinkedHashMap<>()
-        ContactsExtension extension = new ContactsExtension(people)
+        ContactsExtension extension = new ContactsExtension(people, true)
 
         Closure closure = {
             'mickey@disney.com' {
@@ -85,7 +85,7 @@ class ContactsExtensionSpec extends Specification {
     @Unroll
     def 'accepts valid email - #email'() {
         LinkedHashMap<String, Contact> people = Mock()
-        ContactsExtension extension = new ContactsExtension(people)
+        ContactsExtension extension = new ContactsExtension(people, true)
         def closure = {}
 
         when:
@@ -111,7 +111,7 @@ class ContactsExtensionSpec extends Specification {
     @Unroll
     def 'fails with invalid email - #email'() {
         LinkedHashMap<String, Contact> people = Mock()
-        ContactsExtension extension = new ContactsExtension(people)
+        ContactsExtension extension = new ContactsExtension(people, true)
         def closure = {}
 
         when:
@@ -122,6 +122,34 @@ class ContactsExtensionSpec extends Specification {
 
         ContactsPluginException e = thrown(ContactsPluginException)
         e.message == "$email is not a valid email"
+
+        where:
+        email << [
+                'invalid-email',
+                'mickey@127.0.0.1',
+                '@disney.com',
+                '#@%^%#$@#$@#.com',
+                'Mickey Mouse <mickey@disney.com>',
+                'email.disney.com',
+                '.mickey@disney.com',
+                'mickey..mouse@disney.com',
+                'mickey@-disney.com',
+                'mickey@disney..com',
+        ]
+    }
+
+
+    @Unroll
+    def 'does not fail with invalid email #email if validation is disabled'() {
+        LinkedHashMap<String, Contact> people = Mock()
+        ContactsExtension extension = new ContactsExtension(people, false)
+        def closure = {}
+
+        when:
+        extension."$email" closure
+
+        then:
+        1 * people.put(email, _ as Contact)
 
         where:
         email << [

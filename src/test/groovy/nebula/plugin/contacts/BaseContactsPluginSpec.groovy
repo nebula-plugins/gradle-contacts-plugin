@@ -47,6 +47,44 @@ class BaseContactsPluginSpec extends PluginProjectSpec {
 
     }
 
+    def 'Plugin does not fail with invalid emails if validation is disabled'() {
+
+        when:
+        def plugin = project.plugins.apply(BaseContactsPlugin)
+
+        project.contacts {
+            validateEmails = false
+            'not an email' {}
+        }
+
+        then:
+        plugin.extension.people.size() == 1
+        plugin.extension.people.values().any { it.email == 'not an email' }
+
+        when:
+        project.contacts 'minnie@disney.com', 'mickey@disney.com'
+
+        then:
+        plugin.extension.people.size() == 3
+        plugin.extension.people.values().any { it.email == 'minnie@disney.com' }
+        plugin.extension.people.values().any { it.email == 'mickey@disney.com' }
+    }
+
+    def 'plugin fails if email validation is enabled and not valid email'() {
+
+        when:
+        def plugin = project.plugins.apply(BaseContactsPlugin)
+
+        project.contacts {
+            validateEmails = true
+            'not an email' {}
+        }
+
+        then:
+        ContactsPluginException e = thrown(ContactsPluginException)
+        e.message == 'not an email is not a valid email'
+    }
+
     def 'collects all levels of multiproject'() {
         def sub = ProjectBuilder.builder().withName('sub').withProjectDir(new File(projectDir, 'sub')).withParent(project).build()
         project.subprojects.add(sub)
