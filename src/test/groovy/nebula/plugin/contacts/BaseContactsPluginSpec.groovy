@@ -47,6 +47,28 @@ class BaseContactsPluginSpec extends PluginProjectSpec {
 
     }
 
+    def 'Plugin does not fail with invalid emails if validation is disabled - not configured'() {
+
+        when:
+        def plugin = project.plugins.apply(BaseContactsPlugin)
+
+        project.contacts {
+            'not an email' {}
+        }
+
+        then:
+        plugin.extension.people.size() == 1
+        plugin.extension.people.values().any { it.email == 'not an email' }
+
+        when:
+        project.contacts 'minnie@disney.com', 'mickey@disney.com'
+
+        then:
+        plugin.extension.people.size() == 3
+        plugin.extension.people.values().any { it.email == 'minnie@disney.com' }
+        plugin.extension.people.values().any { it.email == 'mickey@disney.com' }
+    }
+
     def 'Plugin does not fail with invalid emails if validation is disabled'() {
 
         when:
