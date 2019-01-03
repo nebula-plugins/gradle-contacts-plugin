@@ -26,6 +26,10 @@ contacts {
         moniker 'Justin Ryan'
         github 'quidryan'
     }
+    'roberto@perezalcolea.info' {
+        moniker 'Roberto Perez Alcolea'
+        github 'rpalcolea'
+    }
 }
 
 pluginBundle {
