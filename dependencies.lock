@@ -1,25 +1,25 @@
 {
     "integTestCompile": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.4",
+            "locked": "7.1.7",
             "requested": "7.+"
         }
     },
     "integTestCompileClasspath": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.4",
+            "locked": "7.1.7",
             "requested": "7.+"
         }
     },
     "integTestRuntime": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.4",
+            "locked": "7.1.7",
             "requested": "7.+"
         }
     },
     "integTestRuntimeClasspath": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.4",
+            "locked": "7.1.7",
             "requested": "7.+"
         }
     },
@@ -35,25 +35,25 @@
     },
     "testCompile": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.4",
+            "locked": "7.1.7",
             "requested": "7.+"
         }
     },
     "testCompileClasspath": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.4",
+            "locked": "7.1.7",
             "requested": "7.+"
         }
     },
     "testRuntime": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.4",
+            "locked": "7.1.7",
             "requested": "7.+"
         }
     },
     "testRuntimeClasspath": {
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.4",
+            "locked": "7.1.7",
             "requested": "7.+"
         }
     }
