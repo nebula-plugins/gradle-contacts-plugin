@@ -1,2 +1,3 @@
 rootProject.name = 'gradle-contacts-plugin'
+enableFeaturePreview("GRADLE_METADATA")
 
