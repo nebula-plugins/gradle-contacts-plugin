@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 plugins {
-    id 'nebula.plugin-plugin' version '13.0.0'
+    id 'nebula.plugin-plugin' version '13.0.2'
 }
 
 description 'Plugin to specify and publish who the owner of a project is'
