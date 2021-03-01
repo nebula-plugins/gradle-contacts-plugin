@@ -3,9 +3,11 @@ Gradle Contacts Plugin
 
 ![Support Status](https://img.shields.io/badge/nebula-active-green.svg)
 [![Gradle Plugin Portal](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com.netflix.nebula/gradle-contacts-plugin/maven-metadata.xml.svg?label=gradlePluginPortal)](https://plugins.gradle.org/plugin/nebula.contacts)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.netflix.nebula/gradle-contacts-plugin/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/com.netflix.nebula/gradle-contacts-plugin)
 ![CI](https://github.com/nebula-plugins/gradle-contacts-plugin/actions/workflows/ci.yml/badge.svg)
 ![Publish](https://github.com/nebula-plugins/gradle-contacts-plugin/actions/workflows/publish.yml/badge.svg)
-[![Apache 2.0](https://img.shields.io/github/license/nebula-plugins/nebula-oss-publishing-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Apache 2.0](https://img.shields.io/github/license/nebula-plugins/gradle-contacts-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+
 
 Plugin allows the expression of the contacts involved with a project. This data is then made available to other plugins,
 to be injected in different outputs, e.g. the developers section of the POM via the nebula-publishing-plugin or the jar
