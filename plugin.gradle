@@ -32,9 +32,9 @@ def pomConfig = {
 
     developers {
         developer {
-            id 'quidryan'
-            name 'Justin Ryan'
-            email 'jryan@netflix.com'
+            id 'nebula-plugins'
+            name 'Nebula-Plugins maintainers'
+            email 'nebula-plugins-oss@netflix.com'
             roles{
                 role 'Developer'
             }

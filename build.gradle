@@ -20,13 +20,9 @@ plugins {
 description 'Plugin to specify and publish who the owner of a project is'
 
 contacts {
-    'justin@halfempty.org' {
-        moniker 'Justin Ryan'
-        github 'quidryan'
-    }
-    'roberto@perezalcolea.info' {
-        moniker 'Roberto Perez Alcolea'
-        github 'rpalcolea'
+    'nebula-plugins-oss@netflix.com' {
+        moniker 'Nebula-Plugins maintainers'
+        github 'nebula-plugins'
     }
 }
 
