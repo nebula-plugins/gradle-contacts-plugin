@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 plugins {
-    id 'nebula.plugin-plugin' version '16.3.0'
+    id 'nebula.plugin-plugin' version '17.0.0'
 }
 
 description 'Plugin to specify and publish who the owner of a project is'
@@ -27,12 +27,22 @@ contacts {
 }
 
 pluginBundle {
+    tags = ['nebula', 'contacts']
+}
+
+gradlePlugin {
     plugins {
         contacts {
             id = 'nebula.contacts'
             displayName = 'Gradle Contacts Plugin'
             description = project.description
-            tags = ['nebula', 'contacts']
+            implementationClass = 'nebula.plugin.contacts.ContactsPlugin'
+        }
+        contactsBase {
+            id = 'nebula.contacts-base'
+            displayName = 'Gradle Base Contacts Plugin'
+            description = project.description
+            implementationClass = 'nebula.plugin.contacts.BaseContactsPlugin'
         }
     }
 }
