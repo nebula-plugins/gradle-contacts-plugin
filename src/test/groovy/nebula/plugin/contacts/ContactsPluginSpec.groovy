@@ -20,6 +20,6 @@ import nebula.test.PluginProjectSpec
 class ContactsPluginSpec extends PluginProjectSpec {
     @Override
     String getPluginName() {
-        'nebula.contacts'
+        'com.netflix.nebula.contacts'
     }
 }

@@ -33,13 +33,13 @@ pluginBundle {
 gradlePlugin {
     plugins {
         contacts {
-            id = 'nebula.contacts'
+            id = 'com.netflix.nebula.contacts'
             displayName = 'Gradle Contacts Plugin'
             description = project.description
             implementationClass = 'nebula.plugin.contacts.ContactsPlugin'
         }
         contactsBase {
-            id = 'nebula.contacts-base'
+            id = 'com.netflix.nebula.contacts-base'
             displayName = 'Gradle Base Contacts Plugin'
             description = project.description
             implementationClass = 'nebula.plugin.contacts.BaseContactsPlugin'
