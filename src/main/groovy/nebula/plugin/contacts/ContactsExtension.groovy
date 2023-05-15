@@ -1,7 +1,5 @@
 package nebula.plugin.contacts
 
-import org.gradle.util.ConfigureUtil
-
 /**
  * Holds Person for a project.
  * TODO repeat a name and guarantee uniqueness
