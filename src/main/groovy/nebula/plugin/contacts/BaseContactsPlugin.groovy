@@ -55,9 +55,24 @@ class BaseContactsPlugin implements Plugin<Project> {
             thisProject = thisProject.parent // Root Project will have a null parent
         }
 
-        return contacts.collect {
-            it.clone()
+        return contacts.collect { Contact original ->
+            return cloneContact(original)
         }
+    }
+
+    /**
+     * Clone a Contact object manually
+     * @param original the original Contact to clone
+     * @return cloned Contact
+     */
+    static Contact cloneContact(Contact original) {
+        Contact cloned = new Contact(original.email)
+        cloned.moniker = original.moniker
+        cloned.github = original.github
+        cloned.twitter = original.twitter
+        cloned.slack = original.slack
+        cloned.roles = new HashSet<>(original.roles)
+        return cloned
     }
 
     /**

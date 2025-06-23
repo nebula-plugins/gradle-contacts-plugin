@@ -1,6 +1,5 @@
 package nebula.plugin.contacts
 
-import groovy.transform.AutoClone
 import groovy.transform.Canonical
 import org.gradle.api.Named
 
@@ -8,7 +7,6 @@ import org.gradle.api.Named
  * Roll-up features needed for Contact
  */
 @Canonical
-@AutoClone
 class Contact implements Named {
     final String email
 
@@ -20,17 +18,17 @@ class Contact implements Named {
     /**
      * Github username
      */
-    String github
+    String github = ""
 
     /**
      * Twitter handle
      */
-    String twitter
+    String twitter = ""
 
     /**
      * Slack handle
      */
-    String slack
+    String slack = ""
 
     Set<String> roles = [] as Set
 
