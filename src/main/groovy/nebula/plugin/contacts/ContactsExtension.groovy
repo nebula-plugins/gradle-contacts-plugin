@@ -48,7 +48,7 @@ class ContactsExtension {
         addPerson(name)
     }
 
-    def addPerson(String email) {
+    Contact addPerson(String email) {
         if(validateEmails)
             validateEmail(email)
         def person = people.containsKey(email) ? people.get(email) : new Contact(email)
@@ -56,7 +56,7 @@ class ContactsExtension {
         return person
     }
 
-    def addPerson(String email, Closure closure) {
+    Contact addPerson(String email, Closure closure) {
         if(validateEmails)
             validateEmail(email)
         def person = people.containsKey(email) ? BaseContactsPlugin.cloneContact(people.get(email)) : new Contact(email)
