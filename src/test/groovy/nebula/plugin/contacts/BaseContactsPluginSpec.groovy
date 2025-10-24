@@ -15,13 +15,22 @@
  */
 package nebula.plugin.contacts
 
-import nebula.test.PluginProjectSpec
+import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
+import org.junit.Before
 
-class BaseContactsPluginSpec extends PluginProjectSpec {
-    @Override
-    String getPluginName() {
-        'com.netflix.nebula.contacts'
+import spock.lang.Specification
+import spock.lang.TempDir
+
+class BaseContactsPluginSpec extends Specification {
+
+    @TempDir
+    File projectDir
+    Project project
+
+    @Before
+    void setup() {
+        project = ProjectBuilder.builder().build()
     }
 
     def 'extension accessible'() {
