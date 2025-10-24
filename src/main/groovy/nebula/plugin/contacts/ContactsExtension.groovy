@@ -1,5 +1,8 @@
 package nebula.plugin.contacts
 
+import org.gradle.api.Action
+import org.gradle.api.NamedDomainObjectContainer
+
 /**
  * Holds Person for a project.
  * TODO repeat a name and guarantee uniqueness
@@ -8,6 +11,7 @@ class ContactsExtension {
 
     private final String emailPattern = /[_A-Za-z0-9-]+(.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(.[A-Za-z0-9]+)*(.[A-Za-z]{2,})/
 
+    NamedDomainObjectContainer<Contact> peopleContainer
     final LinkedHashMap<String, Contact> people
     boolean validateEmails
 
@@ -61,6 +65,15 @@ class ContactsExtension {
             validateEmail(email)
         def person = people.containsKey(email) ? BaseContactsPlugin.cloneContact(people.get(email)) : new Contact(email)
         ConfigureUtil.configure(closure, person)
+        people.put(email, person)
+        return person
+    }
+
+    Contact addPerson(String email, Action<Contact> closure) {
+        if(validateEmails)
+            validateEmail(email)
+        def person = people.containsKey(email) ? BaseContactsPlugin.cloneContact(people.get(email)) : new Contact(email)
+        closure.execute(person)
         people.put(email, person)
         return person
     }

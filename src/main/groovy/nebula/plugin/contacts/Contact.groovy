@@ -8,7 +8,7 @@ import org.gradle.api.Named
  */
 @Canonical
 class Contact implements Named {
-    final String email
+    String email
 
     /**
      * Aka name, but Named interface won't let us call it that
@@ -53,19 +53,19 @@ class Contact implements Named {
 
     // Temporary until we can find a annotation to do this for us
     void moniker(String moniker) {
-        if(!moniker)
+        if (!moniker)
             return
         this.moniker = moniker
     }
 
     void github(String github) {
-        if(!github)
+        if (!github)
             return
         this.github = github
     }
 
     void twitter(String twitter) {
-        if(!twitter)
+        if (!twitter)
             return
         this.twitter = twitter
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 plugins {
-    id 'com.netflix.nebula.plugin-plugin' version '22.0.2'
+    id("com.netflix.nebula.plugin-plugin") version ("23.+")
 }
 
 description 'Plugin to specify and publish who the owner of a project is'
@@ -24,6 +24,12 @@ contacts {
         moniker 'Nebula-Plugins maintainers'
         github 'nebula-plugins'
     }
+}
+
+dependencies {
+    testImplementation("org.assertj:assertj-core:3.27.6")
+    testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
+    testImplementation("org.junit.vintage:junit-vintage-engine:5.+")
 }
 
 gradlePlugin {
@@ -45,3 +51,10 @@ gradlePlugin {
     }
 }
 
+testing {
+    suites {
+        test {
+            useJUnitJupiter()
+        }
+    }
+}
