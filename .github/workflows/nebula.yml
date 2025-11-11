@@ -9,15 +9,8 @@ on:
   pull_request:
 
 jobs:
-  validation:
-    name: "Gradle Wrapper Validation"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: gradle/wrapper-validation-action@v1
   buildmultijdk:
     if: (!startsWith(github.ref, 'refs/tags/v'))
-    needs: validation
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -48,7 +41,6 @@ jobs:
           JDK_VERSION_FOR_TESTS: ${{ matrix.java }}
   validatepluginpublication:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: validation
     runs-on: ubuntu-latest
     name: Gradle Plugin Publication Validation
     env:
