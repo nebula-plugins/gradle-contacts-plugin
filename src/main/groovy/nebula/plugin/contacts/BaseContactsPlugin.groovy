@@ -19,22 +19,21 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * Provide extension onto a project, to configure contacts. Also provide accessor methods to get contacts given a role.
+ * Provides contacts extension and accessor methods to retrieve contacts by role.
  */
 class BaseContactsPlugin implements Plugin<Project> {
-    ContactsExtension extension
-    Project project
+    private Project project
+
+    @Lazy
+    private volatile List<Contact> cachedResolvedContacts = { resolveContactsInternal(project) }()
 
     @Override
     void apply(Project project) {
         this.project = project
 
         def people = new LinkedHashMap<String, Contact>()
+        def extension = project.extensions.create('contacts', ContactsExtension, people)
 
-        // Create and install the extension object
-        extension = project.extensions.create('contacts', ContactsExtension, people)
-
-        // Helper for adding contacts without calling in a closure
         project.ext.contacts = { String... args ->
             args.collect {
                 extension.addPerson(it)
@@ -42,17 +41,35 @@ class BaseContactsPlugin implements Plugin<Project> {
         }
     }
 
-    private List<Contact> resolveContacts() {
+    /**
+     * @deprecated Use project.extensions.getByType(ContactsExtension) instead.
+     */
+    @Deprecated
+    ContactsExtension getExtension() {
+        return project.extensions.getByType(ContactsExtension)
+    }
+
+    /**
+     * @deprecated Use static methods getAllContacts(Project) and getContacts(Project, String) instead.
+     */
+    @Deprecated
+    Project getProject() {
+        return project
+    }
+
+    private static List<Contact> resolveContacts(Project project) {
+        return resolveContactsInternal(project)
+    }
+
+    private static List<Contact> resolveContactsInternal(Project project) {
         Project thisProject = project
         List<Contact> contacts = []
-        // TODO Probably should reverse the order so that root project contacts come first
         while (thisProject != null) {
             ContactsExtension contactsPath = thisProject.extensions.findByType(ContactsExtension)
             if (contactsPath) {
-                // Ergo he exists as a developer
                 contacts = addToContacts(contacts, contactsPath.people)
             }
-            thisProject = thisProject.parent // Root Project will have a null parent
+            thisProject = thisProject.parent
         }
 
         return contacts.collect { Contact original ->
@@ -60,11 +77,6 @@ class BaseContactsPlugin implements Plugin<Project> {
         }
     }
 
-    /**
-     * Clone a Contact object manually
-     * @param original the original Contact to clone
-     * @return cloned Contact
-     */
     static Contact cloneContact(Contact original) {
         Contact cloned = new Contact(original.email)
         cloned.moniker = original.moniker
@@ -75,29 +87,27 @@ class BaseContactsPlugin implements Plugin<Project> {
         return cloned
     }
 
-    /**
-     * Return Contacts (clones) which match a role, or for users that don't have a role
-     * @param role
-     * @return matching contacts
-     */
     List<Contact> getContacts(String role) {
-        // Objects are already cloned before we see it.
-        return resolveContacts().findAll { Contact contact ->
+        return cachedResolvedContacts.findAll { Contact contact ->
             contact.roles.isEmpty() || contact.roles.contains(role)
         }
     }
 
-    /**
-     * Return all Contacts (clones) no matter to role
-     * @param role
-     * @return matching contacts
-     */
     List<Contact> getAllContacts() {
-        // Objects are already cloned before we see it.
-        return resolveContacts()
+        return cachedResolvedContacts
     }
 
-    private List<Contact> addToContacts(List<Contact> contacts, Map<String, Contact> people) {
+    static List<Contact> getContacts(Project project, String role) {
+        return resolveContacts(project).findAll { Contact contact ->
+            contact.roles.isEmpty() || contact.roles.contains(role)
+        }
+    }
+
+    static List<Contact> getAllContacts(Project project) {
+        return resolveContacts(project)
+    }
+
+    private static List<Contact> addToContacts(List<Contact> contacts, Map<String, Contact> people) {
         people.each { email, contact ->
             Contact existingContact = contacts.find { it.email == email }
             if(existingContact) {

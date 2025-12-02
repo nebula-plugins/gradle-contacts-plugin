@@ -104,7 +104,7 @@ class BaseContactsPluginSpec extends Specification {
     def 'plugin fails if email validation is enabled and not valid email'() {
 
         when:
-        def plugin = project.plugins.apply(BaseContactsPlugin)
+        project.plugins.apply(BaseContactsPlugin)
 
         project.contacts {
             validateEmails = true
@@ -123,9 +123,9 @@ class BaseContactsPluginSpec extends Specification {
         when:
         project.plugins.apply(BaseContactsPlugin)
         project.contacts 'mickey@disney.com'
-        def apply = sub.plugins.apply(BaseContactsPlugin)
+        def subPlugin = sub.plugins.apply(BaseContactsPlugin)
         sub.contacts 'minnie@disney.com'
-        def allContacts = apply.getAllContacts()
+        def allContacts = subPlugin.getAllContacts()
 
         then:
         allContacts.any { it.name == 'mickey@disney.com' }
@@ -134,7 +134,7 @@ class BaseContactsPluginSpec extends Specification {
 
     def 'filter by role'() {
         when:
-        def apply = project.plugins.apply(BaseContactsPlugin)
+        def plugin = project.plugins.apply(BaseContactsPlugin)
         project.contacts {
             'mickey@disney.com' {
             }
@@ -150,10 +150,10 @@ class BaseContactsPluginSpec extends Specification {
         }
 
         then:
-        apply.getAllContacts().size() == 4
-        (apply.getContacts('guest') as Set).size() == 3
-        (apply.getContacts('host') as Set).size() == 2
-        (apply.getContacts('') as Set).size() == 1
+        plugin.getAllContacts().size() == 4
+        (plugin.getContacts('guest') as Set).size() == 3
+        (plugin.getContacts('host') as Set).size() == 2
+        (plugin.getContacts('') as Set).size() == 1
     }
 
     def 'collects all levels of multiproject - merges existing contacts'() {
@@ -169,7 +169,7 @@ class BaseContactsPluginSpec extends Specification {
                 github 'goofy'
             }
         }
-        def apply = sub.plugins.apply(BaseContactsPlugin)
+        def subPlugin = sub.plugins.apply(BaseContactsPlugin)
         sub.contacts {
             'mickey@disney.com' {
                 role 'guest'
@@ -183,12 +183,39 @@ class BaseContactsPluginSpec extends Specification {
         }
 
         and:
-        List<Contact> contacts = apply.getAllContacts()
+        List<Contact> contacts = subPlugin.getAllContacts()
 
         then:
         contacts.size() == 2
-        (apply.getContacts('guest') as Set).size() == 2
+        (subPlugin.getContacts('guest') as Set).size() == 2
         contacts.find { it.github == 'mickey' && it.twitter == 'mickey' && it.email == 'mickey@disney.com' }
         contacts.find { it.github == 'goofy' && it.twitter == 'goofy' && it.email == 'goofy@disney.com' }
+    }
+
+    def 'explicit contact() method works alongside dynamic syntax'() {
+        when:
+        def plugin = project.plugins.apply(BaseContactsPlugin)
+        project.contacts {
+            // New explicit API
+            contact('explicit@example.com') {
+                moniker 'Explicit User'
+                role 'owner'
+            }
+            // Old dynamic API - must still work!
+            'dynamic@example.com' {
+                moniker 'Dynamic User'
+                role 'contributor'
+            }
+        }
+
+        then:
+        plugin.getAllContacts().size() == 2
+        def explicitContact = plugin.getAllContacts().find { it.email == 'explicit@example.com' }
+        explicitContact.moniker == 'Explicit User'
+        explicitContact.roles.contains('owner')
+
+        def dynamicContact = plugin.getAllContacts().find { it.email == 'dynamic@example.com' }
+        dynamicContact.moniker == 'Dynamic User'
+        dynamicContact.roles.contains('contributor')
     }
 }
