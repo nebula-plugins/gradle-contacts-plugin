@@ -1,5 +1,6 @@
 package nebula.plugin.contacts
 
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 
@@ -24,26 +25,20 @@ class ContactsExtension {
      * Suck up all dynamic calls into the people container. This gives us the leeway to have other methods in the extension
      * without requiring another level of indirection.
      * @param name email address
-     * @param args an empty array or a single Closure
+     * @param args an empty array or a single Closure/Action
      * @return Contact
      */
     def methodMissing(String name, args) {
         switch(args.length) {
             case 0:
-                def added = addPerson(name)
-                return added
+                return addPerson(name)
             case 1:
-                if (args[0] instanceof Closure) {
-                    def added = addPerson(name, args[0])
-                    return added
-                }
-                // Fall through
+                // Let Groovy's method dispatch choose the right overload (Closure vs Action)
+                return addPerson(name, args[0])
             default:
+                // Handle multiple email addresses: 'mickey@disney.com' 'minnie@disney.com', 'goofy@disney.com'
                 def names = (args.toList() + name) as Set
-                def people = names.collect {
-                    addPerson(it)
-                }
-                return people
+                return names.collect { addPerson(it) }
         }
     }
 
@@ -60,20 +55,34 @@ class ContactsExtension {
         return person
     }
 
-    Contact addPerson(String email, Closure closure) {
+    /**
+     * Add or configure a contact using a Groovy closure (for Groovy DSL).
+     * @param email the contact's email address
+     * @param closure configuration closure with the Contact as delegate
+     * @return the configured Contact
+     */
+    Contact addPerson(String email, @DelegatesTo(Contact) Closure closure) {
         if(validateEmails)
             validateEmail(email)
         def person = people.containsKey(email) ? BaseContactsPlugin.cloneContact(people.get(email)) : new Contact(email)
-        ConfigureUtil.configure(closure, person)
+        closure.delegate = person
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.call()
         people.put(email, person)
         return person
     }
 
-    Contact addPerson(String email, Action<Contact> closure) {
+    /**
+     * Add or configure a contact using an Action (for Kotlin DSL and explicit Action usage).
+     * @param email the contact's email address
+     * @param action configuration action
+     * @return the configured Contact
+     */
+    Contact addPerson(String email, Action<Contact> action) {
         if(validateEmails)
             validateEmail(email)
         def person = people.containsKey(email) ? BaseContactsPlugin.cloneContact(people.get(email)) : new Contact(email)
-        closure.execute(person)
+        action.execute(person)
         people.put(email, person)
         return person
     }
