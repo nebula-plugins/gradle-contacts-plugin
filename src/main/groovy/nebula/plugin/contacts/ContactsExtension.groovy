@@ -22,28 +22,47 @@ class ContactsExtension {
     }
 
     /**
-     * Suck up all dynamic calls into the people container. This gives us the leeway to have other methods in the extension
-     * without requiring another level of indirection.
-     * @param name email address
-     * @param args an empty array or a single Closure/Action
-     * @return Contact
+     * Add a contact without configuration.
+     * @param email the contact's email address
+     * @return the Contact
      */
+    Contact contact(String email) {
+        return addPerson(email)
+    }
+
+    /**
+     * Add or configure a contact using a Groovy closure.
+     * @param email the contact's email address
+     * @param closure configuration closure
+     * @return the configured Contact
+     */
+    Contact contact(String email, @DelegatesTo(Contact) Closure closure) {
+        return addPerson(email, closure)
+    }
+
+    /**
+     * Add or configure a contact using an Action.
+     * @param email the contact's email address
+     * @param action configuration action
+     * @return the configured Contact
+     */
+    Contact contact(String email, Action<Contact> action) {
+        return addPerson(email, action)
+    }
+
     def methodMissing(String name, args) {
         switch(args.length) {
             case 0:
                 return addPerson(name)
             case 1:
-                // Let Groovy's method dispatch choose the right overload (Closure vs Action)
                 return addPerson(name, args[0])
             default:
-                // Handle multiple email addresses: 'mickey@disney.com' 'minnie@disney.com', 'goofy@disney.com'
                 def names = (args.toList() + name) as Set
                 return names.collect { addPerson(it) }
         }
     }
 
     def propertyMissing(String name) {
-        // Act of asking for a name will create one
         addPerson(name)
     }
 
