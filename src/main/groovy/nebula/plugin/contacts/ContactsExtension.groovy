@@ -2,17 +2,14 @@ package nebula.plugin.contacts
 
 import groovy.lang.DelegatesTo
 import org.gradle.api.Action
-import org.gradle.api.NamedDomainObjectContainer
 
 /**
- * Holds Person for a project.
- * TODO repeat a name and guarantee uniqueness
+ * Holds contacts for a project.
  */
 class ContactsExtension {
 
     private final String emailPattern = /[_A-Za-z0-9-]+(.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(.[A-Za-z0-9]+)*(.[A-Za-z]{2,})/
 
-    NamedDomainObjectContainer<Contact> peopleContainer
     final LinkedHashMap<String, Contact> people
     boolean validateEmails
 
@@ -70,7 +67,7 @@ class ContactsExtension {
         if(validateEmails)
             validateEmail(email)
         def person = people.containsKey(email) ? people.get(email) : new Contact(email)
-        people.put(email, person) // Redundant if already there, just trying to follow model below
+        people.put(email, person)
         return person
     }
 
