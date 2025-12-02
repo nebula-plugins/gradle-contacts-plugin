@@ -22,8 +22,9 @@ import org.gradle.api.Project
  * Provide extension onto a project, to configure contacts. Also provide accessor methods to get contacts given a role.
  */
 class BaseContactsPlugin implements Plugin<Project> {
-    ContactsExtension extension
-    Project project
+    // Store project reference for backwards compatibility with instance method API
+    // This is set once during apply() and never modified (effectively immutable)
+    private Project project
 
     @Override
     void apply(Project project) {
@@ -32,7 +33,7 @@ class BaseContactsPlugin implements Plugin<Project> {
         def people = new LinkedHashMap<String, Contact>()
 
         // Create and install the extension object
-        extension = project.extensions.create('contacts', ContactsExtension, people)
+        def extension = project.extensions.create('contacts', ContactsExtension, people)
 
         // Helper for adding contacts without calling in a closure
         project.ext.contacts = { String... args ->
@@ -42,7 +43,29 @@ class BaseContactsPlugin implements Plugin<Project> {
         }
     }
 
-    private List<Contact> resolveContacts() {
+    /**
+     * Get the contacts extension for this plugin's project.
+     * @return the ContactsExtension
+     * @deprecated Access the extension directly via project.extensions.getByType(ContactsExtension) instead.
+     * This getter will be removed in a future version.
+     */
+    @Deprecated
+    ContactsExtension getExtension() {
+        return project.extensions.getByType(ContactsExtension)
+    }
+
+    /**
+     * Get the project this plugin was applied to.
+     * @return the Project
+     * @deprecated Direct access to the project field is discouraged. Use static methods like
+     * getAllContacts(Project) and getContacts(Project, String) instead. This getter will be removed in a future version.
+     */
+    @Deprecated
+    Project getProject() {
+        return project
+    }
+
+    private static List<Contact> resolveContacts(Project project) {
         Project thisProject = project
         List<Contact> contacts = []
         // TODO Probably should reverse the order so that root project contacts come first
@@ -77,27 +100,47 @@ class BaseContactsPlugin implements Plugin<Project> {
 
     /**
      * Return Contacts (clones) which match a role, or for users that don't have a role
-     * @param role
+     * @param role the role to filter by
      * @return matching contacts
      */
     List<Contact> getContacts(String role) {
+        return getContacts(project, role)
+    }
+
+    /**
+     * Return all Contacts (clones) no matter the role
+     * @return all contacts
+     */
+    List<Contact> getAllContacts() {
+        return getAllContacts(project)
+    }
+
+    /**
+     * Static method to get Contacts matching a role from any project.
+     * Prefer this over the instance method for better testability.
+     * @param project the project to resolve contacts from
+     * @param role the role to filter by
+     * @return matching contacts
+     */
+    static List<Contact> getContacts(Project project, String role) {
         // Objects are already cloned before we see it.
-        return resolveContacts().findAll { Contact contact ->
+        return resolveContacts(project).findAll { Contact contact ->
             contact.roles.isEmpty() || contact.roles.contains(role)
         }
     }
 
     /**
-     * Return all Contacts (clones) no matter to role
-     * @param role
-     * @return matching contacts
+     * Static method to get all Contacts from any project.
+     * Prefer this over the instance method for better testability.
+     * @param project the project to resolve contacts from
+     * @return all contacts
      */
-    List<Contact> getAllContacts() {
+    static List<Contact> getAllContacts(Project project) {
         // Objects are already cloned before we see it.
-        return resolveContacts()
+        return resolveContacts(project)
     }
 
-    private List<Contact> addToContacts(List<Contact> contacts, Map<String, Contact> people) {
+    private static List<Contact> addToContacts(List<Contact> contacts, Map<String, Contact> people) {
         people.each { email, contact ->
             Contact existingContact = contacts.find { it.email == email }
             if(existingContact) {
