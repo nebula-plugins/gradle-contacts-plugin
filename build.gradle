@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 plugins {
-    id("com.netflix.nebula.plugin-plugin") version ("23.+")
+    id("com.netflix.nebula.plugin-plugin") version ("25.+")
 }
 
 description 'Plugin to specify and publish who the owner of a project is'
@@ -40,6 +40,11 @@ gradlePlugin {
             description = project.description
             implementationClass = 'nebula.plugin.contacts.ContactsPlugin'
             tags.set(['nebula', 'contacts'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
         contactsBase {
             id = 'com.netflix.nebula.contacts-base'
@@ -47,6 +52,11 @@ gradlePlugin {
             description = project.description
             implementationClass = 'nebula.plugin.contacts.BaseContactsPlugin'
             tags.set(['nebula', 'contacts'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }
