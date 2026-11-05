@@ -98,9 +98,9 @@ Contacts can have `role`s specified. It can be done via these calls, which can b
 
 Base Plugin
 ---------------
-For explicit, project-local inheritance with Isolated Projects, see
+For project-local contacts with Isolated Projects, see
 [the migration guide](docs/project-local-inheritance.md). Existing builds retain legacy ancestor
-lookup unless they opt in with `contacts.inheritFrom(...)`.
+lookup unless they set `contacts.inheritFromParent = false`.
 
 Technically the _contacts-base_ (nebula.plugin.contacts.BaseContactsPlugin) plugin is what provides the ability to specify
 contacts. The _contacts_ plugin just applies the _contacts-base_, _contacts-manifest_, and _contacts-pom_ plugins. The learn

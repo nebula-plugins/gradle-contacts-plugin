@@ -73,12 +73,15 @@ class ExternalContactsConsumersTest {
                 apply plugin: 'com.netflix.nebula.info-broker'
                 apply plugin: 'com.netflix.nebula.info-owners'
                 apply plugin: 'com.netflix.nebula.info-jar'
-                def owner = new nebula.plugin.contacts.Contact('owner@example.com')
-                owner.moniker = 'Shared owner'; owner.github = 'owner-github'; owner.role('owner')
                 contacts {
-                    inheritFrom([nebula.plugin.contacts.ContactLayer.of([(owner.email): owner])])
+                    inheritFromParent = false
                     contact('notify@example.com') { role 'notify' }
                     contact('everyone@example.com')
+                    if (!inheritFromParent) {
+                        contact('owner@example.com') {
+                            moniker 'Shared owner'; github 'owner-github'; role 'owner'
+                        }
+                    }
                 }
                 publishing.publications.create('contacts', MavenPublication) {
                     groupId = 'example'; artifactId = 'contacts'; version = '1.0'
@@ -86,7 +89,7 @@ class ExternalContactsConsumersTest {
                 tasks.named('jar') { archiveFileName.set('contacts.jar') }
                 """.formatted(pluginClasspath());
         // Compare the real integrations against their ordinary legacy inherited output first.
-        write("app/build.gradle", script.replace("inheritFrom([nebula.plugin.contacts.ContactLayer.of([(owner.email): owner])])", ""));
+        write("app/build.gradle", script.replace("inheritFromParent = false", "inheritFromParent = true"));
         cached(version, false, false);
         assertOwnership();
         var legacyPom = Files.readString(projectDir.resolve("app/build/publications/contacts/pom-default.xml"));
