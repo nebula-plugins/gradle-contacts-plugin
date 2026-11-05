@@ -62,6 +62,15 @@ class BaseContactsPlugin implements Plugin<Project> {
     }
 
     private static List<Contact> resolveContactsInternal(Project project) {
+        ContactsExtension local = project.extensions.findByType(ContactsExtension)
+        if (local != null && local.explicitInheritance) {
+            List<Contact> contacts = addToContacts([], local.people)
+            local.inheritedContactLayers.each { ContactLayer layer ->
+                contacts = addToContacts(contacts, layer.people)
+            }
+            return contacts.collect { Contact original -> cloneContact(original) }
+        }
+
         Project thisProject = project
         List<Contact> contacts = []
         while (thisProject != null) {

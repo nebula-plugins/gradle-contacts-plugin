@@ -2,6 +2,7 @@ package nebula.plugin.contacts
 
 import groovy.lang.DelegatesTo
 import org.gradle.api.Action
+import org.gradle.api.provider.Provider
 
 /**
  * Holds contacts for a project.
@@ -12,6 +13,37 @@ class ContactsExtension {
 
     final LinkedHashMap<String, Contact> people
     boolean validateEmails
+
+    private List<ContactLayer> inheritedLayers
+    private Provider<? extends List<nebula.plugin.contacts.ContactLayer>> inheritedLayersProvider
+
+    /**
+     * Select project-local inheritance, nearest ancestor first. An empty list explicitly
+     * disables inheritance. Layers snapshot their source contacts when constructed.
+     */
+    void inheritFrom(List<ContactLayer> layers) {
+        inheritedLayers = Collections.unmodifiableList(new ArrayList<>(layers))
+        inheritedLayersProvider = null
+    }
+
+    /**
+     * Select project-local inheritance without querying the provider until an accessor
+     * resolves contacts. Use a local provider of detached layers, never another project's
+     * extension or provider. An absent provider fails on resolution rather than falling
+     * back to legacy inheritance.
+     */
+    void inheritFrom(Provider<? extends List<nebula.plugin.contacts.ContactLayer>> layers) {
+        inheritedLayersProvider = Objects.requireNonNull(layers)
+        inheritedLayers = null
+    }
+
+    boolean isExplicitInheritance() {
+        return inheritedLayers != null || inheritedLayersProvider != null
+    }
+
+    List<ContactLayer> getInheritedContactLayers() {
+        return inheritedLayersProvider != null ? inheritedLayersProvider.get() : inheritedLayers
+    }
 
     ContactsExtension(LinkedHashMap<String, Contact> people, boolean validateEmails = false) {
         this.people = people
