@@ -45,6 +45,15 @@ A precompiled project convention plugin can apply `com.netflix.nebula.contacts` 
 `contacts` block. Consumers then apply that convention's plugin ID. This is exercised by the real
 `buildSrc` convention-plugin fixture in `LocalContactsIsolationTest`.
 
+Declare the build logic's Java toolchain explicitly. The fixture uses the plugin's Java 17 baseline
+in `buildSrc/build.gradle`, independently of the JVM running Gradle:
+
+```groovy
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
+}
+```
+
 A convention can also supply a lazy default from a tracked Gradle property, in either DSL:
 
 ```groovy
@@ -123,8 +132,22 @@ actions or providers queried during execution.
 
 ## Verified envelope
 
-Tests use Gradle 9.0.0 and the 9.2.1 wrapper, JDK 21 on macOS arm64. On those releases, strict
-isolation uses `-Dorg.gradle.unsafe.isolated-projects=true` with
+The test matrix uses supported Gradle/JDK combinations on macOS arm64:
+
+| Test JVM | Minimum Gradle tested | Wrapper tested |
+| --- | --- | --- |
+| JDK 17 | 9.0.0 | 9.2.1 |
+| JDK 21 | 9.0.0 | 9.2.1 |
+| JDK 25 | 9.1.0 | 9.2.1 |
+
+Gradle 9.0 does not support running on JDK 25. That job tests the supported 9.1 minimum instead;
+the JDK 17 and 21 jobs retain coverage of Gradle 9.0. The real convention fixture compiles its
+build logic with a Java 17 toolchain, rather than taking its bytecode target from the test JVM.
+The CI workflow runs the same matrix on Linux and retains test reports when a job fails.
+Tests explicitly enable native access for TestKit's `native-platform` library in the test JVM;
+this build option does not change the plugin or require flags in consumer builds.
+
+On those releases, strict isolation uses `-Dorg.gradle.unsafe.isolated-projects=true` with
 `--configuration-cache --configuration-cache-problems=fail`. Rapid fixture edits use `--no-watch-fs`.
 Native file-watcher invalidation, other versions/platforms, composite builds, IDE/tooling models and
 arbitrary external callbacks are outside this verification.
@@ -143,8 +166,9 @@ arbitrary external callbacks are outside this verification.
   `Module-Owner`/`Module-Email` match in ordinary builds and strict isolation, including warm reuse
   and deleted-output regeneration. This focused combination does not establish support for all
   publishing/info umbrella plugins, collectors or versions.
-- `ContactsIsolationAssessmentTest` remains unchanged as the legacy baseline. Eight cases intentionally
-  require strict isolation failures; a green expected-failure test is not a migrated success.
+- `ContactsIsolationAssessmentTest` preserves the legacy scenarios and assertions, with the same
+  JVM-aware version selection. Eight cases intentionally require strict isolation failures; a green
+  expected-failure test is not a migrated success.
 
 Run `./gradlew test validatePlugins --console=plain`. Public/protected declarations in the five
 existing API classes are compared against compiled base sources using `javap -protected`; the

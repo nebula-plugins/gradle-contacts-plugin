@@ -132,7 +132,9 @@ class LocalContactsIsolationTest {
     void conventionPluginSuppliesIndependentLocalOwnership(String version) throws IOException {
         write("settings.gradle", "rootProject.name = 'convention-contacts'\ninclude 'app', 'sibling', 'team:leaf', 'gap:leaf'\n");
         write("buildSrc/settings.gradle", "rootProject.name = 'ownership-build-logic'\n");
-        write("buildSrc/build.gradle", "plugins { id 'groovy-gradle-plugin' }\ndependencies { implementation files(" + pluginClasspath() + ") }\n");
+        write("buildSrc/build.gradle", "plugins { id 'groovy-gradle-plugin' }\n" +
+                "java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }\n" +
+                "dependencies { implementation files(" + pluginClasspath() + ") }\n");
         write("buildSrc/src/main/groovy/ownership-conventions.gradle",
                 "plugins { id 'com.netflix.nebula.contacts' }\n" + DECLARATIONS);
         write("gradle.properties", "contacts.inheritFromParent=false\n");

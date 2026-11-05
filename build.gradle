@@ -51,6 +51,11 @@ gradlePlugin {
     }
 }
 
+tasks.withType(Test).configureEach {
+    // TestKit loads native-platform from an unnamed module in the test JVM.
+    jvmArgs('--enable-native-access=ALL-UNNAMED')
+}
+
 testing {
     suites {
         test {

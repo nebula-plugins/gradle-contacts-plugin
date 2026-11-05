@@ -33,7 +33,7 @@ class ContactsIsolationAssessmentTest {
     }
 
     private static Stream<String> versions() {
-        // MAX in the older tests predates the wrapper. Always assess the actual test runtime too.
+        // Exercise the minimum supported by this test JVM and the actual wrapper.
         return Stream.of(SupportedGradleVersion.MIN.version, GradleVersion.current().getVersion()).distinct();
     }
 
