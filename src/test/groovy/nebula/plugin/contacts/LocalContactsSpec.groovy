@@ -18,7 +18,7 @@ class LocalContactsSpec extends Specification {
         def root = ProjectBuilder.builder().build()
         root.plugins.apply(BaseContactsPlugin)
         def rootContacts = root.extensions.getByType(ContactsExtension)
-        rootContacts.inheritFromParent = false
+        rootContacts.inheritFromParent.set(false)
         rootContacts.contact('root@example.com')
         def child = ProjectBuilder.builder().withParent(root).build()
         def plugin = child.plugins.apply(BaseContactsPlugin)
@@ -26,11 +26,11 @@ class LocalContactsSpec extends Specification {
         contacts.contact('child@example.com')
 
         expect:
-        contacts.inheritFromParent
+        contacts.inheritFromParent.get()
         BaseContactsPlugin.getAllContacts(child)*.email == ['child@example.com', 'root@example.com']
 
         when:
-        contacts.inheritFromParent = false
+        contacts.inheritFromParent.set(false)
 
         then:
         plugin.allContacts*.email == ['child@example.com']
@@ -43,7 +43,7 @@ class LocalContactsSpec extends Specification {
         def project = ProjectBuilder.builder().build()
         def plugin = project.plugins.apply(BaseContactsPlugin)
         project.contacts {
-            inheritFromParent = false
+            inheritFromParent.set(false)
             contact('owner@example.com') {
                 moniker 'Owner'; github 'github'; twitter 'twitter'; slack 'slack'; roles 'owner', 'notify'
             }
@@ -78,18 +78,72 @@ class LocalContactsSpec extends Specification {
         def child = ProjectBuilder.builder().withParent(root).build()
         def plugin = child.plugins.apply(BaseContactsPlugin)
         def contacts = child.extensions.getByType(ContactsExtension)
-        contacts.inheritFromParent = false
+        def inherit = child.objects.property(Boolean).convention(false)
+        def reads = 0
+        contacts.inheritFromParent.convention(child.providers.provider { reads++; inherit.get() })
         contacts.contact('local@example.com')
+
+        expect:
+        reads == 0
+
+        when:
         def first = plugin.allContacts
+
+        then:
+        reads > 0
+        first*.email == ['local@example.com']
 
         when:
         contacts.contact('late@example.com')
-        contacts.inheritFromParent = true
+        inherit.set(true)
+        def readsBeforeCachedAccess = reads
 
         then:
         plugin.allContacts.is(first)
         plugin.allContacts*.email == ['local@example.com']
+        reads == readsBeforeCachedAccess
         BaseContactsPlugin.getAllContacts(child)*.email == ['local@example.com', 'late@example.com', 'root@example.com']
+    }
+
+    def 'explicit values override a provider convention and unset restores the convention'() {
+        given:
+        def project = ProjectBuilder.builder().build()
+        project.plugins.apply(BaseContactsPlugin)
+        def contacts = project.extensions.getByType(ContactsExtension)
+        def reads = 0
+        contacts.inheritFromParent.convention(project.providers.provider { reads++; true })
+        contacts.inheritFromParent.set(false)
+
+        expect:
+        !contacts.inheritFromParent.get()
+        reads == 0
+
+        when:
+        contacts.inheritFromParent.unset()
+
+        then:
+        contacts.inheritFromParent.get()
+        reads > 0
+    }
+
+    def 'original constructors retain legacy resolution without Gradle services'() {
+        given:
+        def root = ProjectBuilder.builder().build()
+        root.plugins.apply(BaseContactsPlugin)
+        root.extensions.getByType(ContactsExtension).contact('root@example.com')
+        def child = ProjectBuilder.builder().withParent(root).build()
+        def people = new LinkedHashMap<String, Contact>()
+        def contacts = validate == null ? new ContactsExtension(people) : new ContactsExtension(people, validate)
+        child.extensions.add('contacts', contacts)
+        contacts.contact('child@example.com')
+
+        expect:
+        contacts.people.is(people)
+        contacts.validateEmails == (validate ?: false)
+        BaseContactsPlugin.getAllContacts(child)*.email == ['child@example.com', 'root@example.com']
+
+        where:
+        validate << [null, true]
     }
 
     def 'local folding retains observable duplicate merge effects and closest slack'() {
@@ -97,7 +151,7 @@ class LocalContactsSpec extends Specification {
         def project = ProjectBuilder.builder().build()
         def plugin = project.plugins.apply(BaseContactsPlugin)
         def contacts = project.extensions.getByType(ContactsExtension)
-        contacts.inheritFromParent = false
+        contacts.inheritFromParent.set(false)
         def first = contacts.contact('original-key@example.com') {
             moniker 'First'; slack 'first'; role 'writer'
         }
@@ -122,7 +176,7 @@ class LocalContactsSpec extends Specification {
         def project = ProjectBuilder.builder().build()
         project.plugins.apply(BaseContactsPlugin)
         project.contacts {
-            inheritFromParent = false
+            inheritFromParent.set(false)
             validateEmails = true
             contact('owner@example.com') { moniker 'Owner'; slack 'first' }
             contact('owner@example.com') { github 'owner'; slack 'second' }

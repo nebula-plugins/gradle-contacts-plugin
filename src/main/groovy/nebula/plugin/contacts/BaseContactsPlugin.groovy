@@ -32,7 +32,7 @@ class BaseContactsPlugin implements Plugin<Project> {
         this.project = project
 
         def people = new LinkedHashMap<String, Contact>()
-        def extension = project.extensions.create('contacts', ContactsExtension, people)
+        def extension = project.extensions.create('contacts', ContactsExtension, people, false, project.objects)
 
         project.ext.contacts = { String... args ->
             args.collect {
@@ -63,7 +63,7 @@ class BaseContactsPlugin implements Plugin<Project> {
 
     private static List<Contact> resolveContactsInternal(Project project) {
         ContactsExtension local = project.extensions.findByType(ContactsExtension)
-        if (local != null && !local.inheritFromParent) {
+        if (local != null && !local.shouldInheritFromParent()) {
             List<Contact> contacts = addToContacts([], local.people)
             return contacts.collect { Contact original -> cloneContact(original) }
         }

@@ -74,10 +74,10 @@ class ExternalContactsConsumersTest {
                 apply plugin: 'com.netflix.nebula.info-owners'
                 apply plugin: 'com.netflix.nebula.info-jar'
                 contacts {
-                    inheritFromParent = false
+                    inheritFromParent.set(false)
                     contact('notify@example.com') { role 'notify' }
                     contact('everyone@example.com')
-                    if (!inheritFromParent) {
+                    if (!inheritFromParent.get()) {
                         contact('owner@example.com') {
                             moniker 'Shared owner'; github 'owner-github'; role 'owner'
                         }
@@ -89,7 +89,7 @@ class ExternalContactsConsumersTest {
                 tasks.named('jar') { archiveFileName.set('contacts.jar') }
                 """.formatted(pluginClasspath());
         // Compare the real integrations against their ordinary legacy inherited output first.
-        write("app/build.gradle", script.replace("inheritFromParent = false", "inheritFromParent = true"));
+        write("app/build.gradle", script.replace("inheritFromParent.set(false)", "inheritFromParent.set(true)"));
         cached(version, false, false);
         assertOwnership();
         var legacyPom = Files.readString(projectDir.resolve("app/build/publications/contacts/pom-default.xml"));

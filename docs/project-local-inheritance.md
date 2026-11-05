@@ -1,7 +1,7 @@
 # Project-local contacts
 
-Set `contacts.inheritFromParent = false` when a locally applied convention supplies a project's
-complete contacts. The flag defaults to `true`, preserving legacy inheritance for existing builds.
+Use `contacts.inheritFromParent.set(false)` when a locally applied convention supplies a project's
+complete contacts. This `Property<Boolean>` has a convention of `true`, preserving legacy inheritance for existing builds.
 It does not switch automatically when Isolated Projects is enabled.
 
 Applying the plugin independently in each project is necessary but does not itself stop the legacy
@@ -15,7 +15,7 @@ extension:
 
 ```groovy
 contacts {
-    inheritFromParent = false
+    inheritFromParent.set(false)
     contact('owners@example.com') {
         moniker 'Team owners'
         roles 'owner', 'notify'
@@ -45,6 +45,29 @@ A precompiled project convention plugin can apply `com.netflix.nebula.contacts` 
 `contacts` block. Consumers then apply that convention's plugin ID. This is exercised by the real
 `buildSrc` convention-plugin fixture in `LocalContactsIsolationTest`.
 
+A convention can also supply a lazy default from a tracked Gradle property, in either DSL:
+
+```groovy
+def inherit = providers.gradleProperty('contacts.inheritFromParent').map { it.toBoolean() }.orElse(false)
+contacts {
+    inheritFromParent.convention(inherit)
+}
+```
+
+```kotlin
+contacts {
+    inheritFromParent.convention(
+        providers.gradleProperty("contacts.inheritFromParent").map { it.toBoolean() }.orElse(false)
+    )
+}
+```
+
+The convention opts consumers into local ownership by default; a consumer can override it with
+`inheritFromParent.set(...)`, including another provider. The plugin reads the property only when
+contacts are resolved and does not finalize it on read.
+In Groovy, define the provider outside `contacts {}`: the existing dynamic contact DSL treats
+unknown property names inside that block as contact declarations.
+
 The declaration is written once, but the convention runs separately against each consumer's own
 extension. Each project gets its own mutable contacts and role sets. No ancestor's Project,
 extension, contacts or maps are read or shared. There is no new contact declaration DSL, ancestor
@@ -63,6 +86,12 @@ ancestor overrides, role union/filtering, roleless inclusion and the existing sl
 are unchanged. Existing plugin IDs, constructors, methods, mutable DSL and email validation remain
 available. Unmigrated parent lookup under strict isolation still fails with Gradle's cross-project
 extension diagnostic; the plugin never silently discards inherited ownership.
+
+The plugin constructs the property through Gradle's public `ObjectFactory`. The existing standalone
+`ContactsExtension(people)` and `ContactsExtension(people, validateEmails)` constructors still support
+their original DSL and legacy resolution without Gradle services. Standalone callers adopting the
+new property must use `ContactsExtension(people, validateEmails, objects)`; reading the new property
+on an instance made with an original constructor reports that requirement.
 
 With `false`, accessors fold and clone only the current project's `people` map. They do not visit
 parent extensions. Local declaration order, configuring overloads, role filtering, email validation,
@@ -84,7 +113,8 @@ Both `com.netflix.nebula.contacts` and `com.netflix.nebula.contacts-base` suppor
 Instance `getAllContacts()` and `getContacts(String)` share a first-read cache and still expose the
 mutable cached result. Changing declarations or the flag after that read does not refresh it.
 Static `getAllContacts(Project)` and `getContacts(Project, String)` resolve afresh using the current
-flag, then return cloned contacts with separate role sets.
+property value, then return cloned contacts with separate role sets. Provider wiring does not defer
+Project access to task execution; these accessors must still run during configuration.
 
 The plugin creates no tasks or eager task realization. Consumers must resolve contacts during their
 own configuration after the intended declarations, then snapshot values into task inputs, POM
@@ -100,12 +130,14 @@ Native file-watcher invalidation, other versions/platforms, composite builds, ID
 arbitrary external callbacks are outside this verification.
 
 - `LocalContactsSpec` covers the default flag, per-consumer selection, exact fields, roles, validation,
-  defensive copies, mutable email/map-key duplicate effects and cached-instance versus fresh-static reads.
+  defensive copies, mutable email/map-key duplicate effects, lazy provider conventions/overrides,
+  original constructors and cached-instance versus fresh-static reads.
 - `LocalContactsIsolationTest` covers local-mode ordinary/strict equivalence for single, sibling,
   nested three-level, root-only, empty and skipped-intermediate layouts. A real precompiled convention
   plugin is applied independently in root, siblings and nested consumers, including a Kotlin build.
   It checks cold storage, warm reuse, deleted-output regeneration, shared name/role/email changes,
-  local input invalidation without sibling changes, and rejection after opting back into parent lookup.
+  local input invalidation without sibling changes, tracked inheritance-provider changes, and rejection
+  after opting back into parent lookup through either a provider or an explicit override.
 - `ExternalContactsConsumersTest` compares legacy inherited ownership with equivalent complete local
   declarations using published publishing 23.2.0 and info 16.3.0 plugins. POM developer XML and JAR
   `Module-Owner`/`Module-Email` match in ordinary builds and strict isolation, including warm reuse
@@ -116,5 +148,5 @@ arbitrary external callbacks are outside this verification.
 
 Run `./gradlew test validatePlugins --console=plain`. Public/protected declarations in the five
 existing API classes are compared against compiled base sources using `javap -protected`; the
-boolean property is additive relative to the released API. This repository does not configure a
+provider-backed property is additive relative to the released API. This repository does not configure a
 library API compatibility Gradle task.

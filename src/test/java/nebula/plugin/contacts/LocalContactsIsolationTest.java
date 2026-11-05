@@ -57,8 +57,9 @@ class LocalContactsIsolationTest {
             def data = new Properties()
             data.load(new StringReader(providers.fileContents(layout.settingsDirectory.file('owners.properties')).asText.get()))
             def localName = providers.fileContents(layout.projectDirectory.file('local.txt')).asText.get()
+            def inherit = providers.gradleProperty('contacts.inheritFromParent').map { it.toBoolean() }.orElse(false)
             contacts {
-                inheritFromParent = false
+                inheritFromParent.convention(inherit)
                 contact(data.getProperty('email')) {
                     moniker data.getProperty('name')
                     github data.getProperty('github')
@@ -109,7 +110,7 @@ class LocalContactsIsolationTest {
             write(prefix + "local.txt", "Module");
             write(prefix + "build.gradle", "plugins { id 'com.netflix.nebula.contacts' }\n" +
                     (topology.equals("empty") && project.equals("team")
-                            ? "contacts { inheritFromParent = false }\n" : DECLARATIONS) + REPORT);
+                            ? "contacts { inheritFromParent.set(false) }\n" : DECLARATIONS) + REPORT);
         }
         stored(run(version, false, true, projects));
         var expected = outputs(projects);
@@ -134,6 +135,7 @@ class LocalContactsIsolationTest {
         write("buildSrc/build.gradle", "plugins { id 'groovy-gradle-plugin' }\ndependencies { implementation files(" + pluginClasspath() + ") }\n");
         write("buildSrc/src/main/groovy/ownership-conventions.gradle",
                 "plugins { id 'com.netflix.nebula.contacts' }\n" + DECLARATIONS);
+        write("gradle.properties", "contacts.inheritFromParent=false\n");
         write("owners.properties", SHARED);
         write("gap/build.gradle", "// No plugin in this intermediate project.\n");
         var projects = List.of("", "app", "sibling", "team", "team/leaf", "gap/leaf");
@@ -147,7 +149,6 @@ class LocalContactsIsolationTest {
         write("sibling/build.gradle.kts", """
                 import nebula.plugin.contacts.BaseContactsPlugin
                 plugins { id("ownership-conventions") }
-                check(!contacts.inheritFromParent)
                 abstract class ContactsReport : DefaultTask() {
                     @get:Input abstract val rows: ListProperty<String>
                     @get:OutputFile abstract val destination: RegularFileProperty
@@ -185,9 +186,15 @@ class LocalContactsIsolationTest {
         assertThat(outputs(projects).get("app")).contains("module@example.com|Changed module|");
         assertThat(outputs(projects).get("sibling")).isEqualTo(sibling);
         reused(run(version, true, false, projects));
-        // Changing a project-local flag invalidates its configured graph and restores legacy access.
-        write("app/build.gradle", "plugins { id 'ownership-conventions' }\ncontacts { inheritFromParent = true }\n" + REPORT);
-        var failed = runner(version, true, false, List.of(":app:reportContacts")).buildAndFail();
+        // A tracked provider input changes resolution and invalidates the same configured task graph.
+        write("gradle.properties", "contacts.inheritFromParent=true\n");
+        var providerFailure = runner(version, true, false, reportTasks(projects)).buildAndFail();
+        assertThat(providerFailure.getOutput()).contains("cannot access 'Project.extensions' functionality on another project")
+                .doesNotContain("Reusing configuration cache.");
+        // An explicit project-local value also overrides the convention's provider value.
+        write("gradle.properties", "contacts.inheritFromParent=false\n");
+        write("app/build.gradle", "plugins { id 'ownership-conventions' }\ncontacts { inheritFromParent.set(true) }\n" + REPORT);
+        var failed = runner(version, true, false, reportTasks(projects)).buildAndFail();
         assertThat(failed.getOutput()).contains("cannot access 'Project.extensions' functionality on another project")
                 .doesNotContain("Reusing configuration cache.");
     }
@@ -201,10 +208,11 @@ class LocalContactsIsolationTest {
                 import nebula.plugin.contacts.BaseContactsPlugin
                 plugins { id("com.netflix.nebula.contacts") }
                 contacts {
-                    inheritFromParent = false
+                    inheritFromParent.set(providers.gradleProperty("contacts.inheritFromParent").map { it.toBoolean() }.orElse(false))
                     validateEmails = true
                     contact("owner@example.com") { role("owner") }
                 }
+                check(!contacts.inheritFromParent.get())
                 val plugin = plugins.getPlugin(BaseContactsPlugin::class.java)
                 check(plugin.allContacts.map { it.email } == listOf("owner@example.com"))
                 contacts.contact("late@example.com")
@@ -220,8 +228,12 @@ class LocalContactsIsolationTest {
     }
 
     private BuildResult run(String version, boolean isolated, boolean injected, List<String> projects) {
-        return runner(version, isolated, injected, projects.stream()
-                .map(path -> (path.isEmpty() ? ":" : ":" + path.replace('/', ':') + ":") + "reportContacts").toList()).build();
+        return runner(version, isolated, injected, reportTasks(projects)).build();
+    }
+
+    private List<String> reportTasks(List<String> projects) {
+        return projects.stream()
+                .map(path -> (path.isEmpty() ? ":" : ":" + path.replace('/', ':') + ":") + "reportContacts").toList();
     }
 
     private GradleRunner runner(String version, boolean isolated, boolean injected, List<String> tasks) {
