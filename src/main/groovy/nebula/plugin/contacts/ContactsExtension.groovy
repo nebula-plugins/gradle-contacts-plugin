@@ -1,7 +1,10 @@
 package nebula.plugin.contacts
 
 import groovy.lang.DelegatesTo
+import groovy.transform.PackageScope
 import org.gradle.api.Action
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 
 /**
  * Holds contacts for a project.
@@ -13,9 +16,39 @@ class ContactsExtension {
     final LinkedHashMap<String, Contact> people
     boolean validateEmails
 
+    private final Property<Boolean> parentInheritance
+
     ContactsExtension(LinkedHashMap<String, Contact> people, boolean validateEmails = false) {
         this.people = people
         this.validateEmails = validateEmails
+        this.parentInheritance = null
+    }
+
+    /**
+     * Creates an extension with provider-backed inheritance configuration.
+     * The original constructors retain legacy inheritance without requiring Gradle services.
+     */
+    ContactsExtension(LinkedHashMap<String, Contact> people, boolean validateEmails, ObjectFactory objects) {
+        this.people = people
+        this.validateEmails = validateEmails
+        this.parentInheritance = objects.property(Boolean).convention(true)
+    }
+
+    /**
+     * Whether accessors include ancestor project contacts. Defaults to legacy inheritance.
+     * Disable when a locally applied convention supplies this project's complete contacts.
+     * Requires creation by the plugin or the constructor accepting ObjectFactory.
+     */
+    Property<Boolean> getInheritFromParent() {
+        if (parentInheritance == null) {
+            throw new IllegalStateException('Configuring inheritFromParent requires the ContactsExtension constructor accepting ObjectFactory')
+        }
+        return parentInheritance
+    }
+
+    @PackageScope
+    boolean shouldInheritFromParent() {
+        return parentInheritance == null || parentInheritance.get()
     }
 
     /**
